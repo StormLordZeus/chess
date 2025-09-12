@@ -152,7 +152,6 @@ public class ChessPiece {
                 pawnDirections = new int[][] { {-1,0}, {-2,0}, {-1,1}, {-1,-1} };
             }
 
-            boolean promotion = false;
             boolean moveTwoBlocked = false;
             for(int i = 0; i < pawnDirections.length; i++)
             {
@@ -196,11 +195,6 @@ public class ChessPiece {
                     if((color == ChessGame.TeamColor.WHITE && y == 8)
                             || (color == ChessGame.TeamColor.BLACK && y == 1))
                     {
-                        promotion = true;
-                    }
-
-                    if(promotion)
-                    {
                         myMoves.add(new ChessMove(myPosition, new ChessPosition(y, x), PieceType.QUEEN));
                         myMoves.add(new ChessMove(myPosition, new ChessPosition(y, x), PieceType.KNIGHT));
                         myMoves.add(new ChessMove(myPosition, new ChessPosition(y, x), PieceType.BISHOP));
@@ -215,6 +209,58 @@ public class ChessPiece {
             }
             return myMoves;
         }
+        if (type == PieceType.QUEEN)
+        {
+            int[][] queenDirections = { {1,1}, {1,-1}, {-1,1}, {-1,-1}, {0,1}, {1,0}, {0,-1}, {-1,0} };
+            for(int i = 0; i < queenDirections.length; i++)
+            {
+                int y = myPosition.getRow() + queenDirections[i][0];
+                int x = myPosition.getColumn() + queenDirections[i][1];
+                while(x >= 1 && x <= 8 && y >= 1 && y <= 8)
+                {
+                    ChessPiece piece2 = board.getPiece(new ChessPosition(y,x));
+                    if(piece2 != null)
+                    {
+                        if (color != piece2.getTeamColor())
+                        {
+                            myMoves.add(new ChessMove(myPosition, new ChessPosition(y, x), null));
+                        }
+                        break;
+                    }
+                    myMoves.add(new ChessMove(myPosition, new ChessPosition(y, x), null));
+                    y += queenDirections[i][0];
+                    x += queenDirections[i][1];
+                }
+            }
+            return myMoves;
+        }
+
+        if (type == PieceType.ROOK)
+        {
+            int[][] rookDirections = { {0,1}, {1,0}, {0,-1}, {-1,0} };
+            for(int i = 0; i < rookDirections.length; i++)
+            {
+                int y = myPosition.getRow() + rookDirections[i][0];
+                int x = myPosition.getColumn() + rookDirections[i][1];
+                while(x >= 1 && x <= 8 && y >= 1 && y <= 8)
+                {
+                    ChessPiece piece2 = board.getPiece(new ChessPosition(y,x));
+                    if(piece2 != null)
+                    {
+                        if (color != piece2.getTeamColor())
+                        {
+                            myMoves.add(new ChessMove(myPosition, new ChessPosition(y, x), null));
+                        }
+                        break;
+                    }
+                    myMoves.add(new ChessMove(myPosition, new ChessPosition(y, x), null));
+                    y += rookDirections[i][0];
+                    x += rookDirections[i][1];
+                }
+            }
+            return myMoves;
+        }
+
         return myMoves;
     }
 
