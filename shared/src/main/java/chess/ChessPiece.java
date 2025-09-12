@@ -63,79 +63,35 @@ public class ChessPiece {
         ChessGame.TeamColor color = piece1.getTeamColor();
         if (piece1.getPieceType() == PieceType.BISHOP)
         {
-            int y = myPosition.getRow();
-            int x = myPosition.getColumn();
-            while(x > 1 && x < 8 && y > 1 && y < 8)
+            int[][] bishopDirections = { {1,1}, {1,-1}, {-1,1}, {-1,-1} };
+            for(int i = 0; i < bishopDirections.length; i++)
             {
-                x++;
-                y++;
-                ChessPiece piece2 = board.getPiece(new ChessPosition(y,x));
-                if(piece2 != null)
+                int y = myPosition.getRow() + bishopDirections[i][0];
+                int x = myPosition.getColumn() + bishopDirections[i][1];
+                while(x >= 1 && x <= 8 && y >= 1 && y <= 8)
                 {
-                    if (color != piece2.getTeamColor())
+                    ChessPiece piece2 = board.getPiece(new ChessPosition(y,x));
+                    if(piece2 != null)
                     {
-                        myMoves.add(new ChessMove(myPosition, new ChessPosition(y, x), null));
+                        if (color != piece2.getTeamColor())
+                        {
+                            myMoves.add(new ChessMove(myPosition, new ChessPosition(y, x), null));
+                        }
+                        break;
                     }
-                    break;
+                    myMoves.add(new ChessMove(myPosition, new ChessPosition(y, x), null));
+                    y += bishopDirections[i][0];
+                    x += bishopDirections[i][1];
                 }
-                myMoves.add(new ChessMove(myPosition, new ChessPosition(y, x), null));
             }
 
-            y = myPosition.getRow();
-            x = myPosition.getColumn();
-            while(x > 1 && x < 8 && y > 1 && y < 8)
-            {
-                x--;
-                y--;
-                ChessPiece piece2 = board.getPiece(new ChessPosition(y,x));
-                if(piece2 != null)
-                {
-                    if (color != piece2.getTeamColor())
-                    {
-                        myMoves.add(new ChessMove(myPosition, new ChessPosition(y, x), null));
-                    }
-                    break;
-                }
-                myMoves.add(new ChessMove(myPosition, new ChessPosition(y, x), null));
-            }
-
-            y = myPosition.getRow();
-            x = myPosition.getColumn();
-            while(x > 1 && x < 8 && y > 1 && y < 8)
-            {
-                x++;
-                y--;
-                ChessPiece piece2 = board.getPiece(new ChessPosition(y,x));
-                if(piece2 != null)
-                {
-                    if (color != piece2.getTeamColor())
-                    {
-                        myMoves.add(new ChessMove(myPosition, new ChessPosition(y, x), null));
-                    }
-                    break;
-                }
-                myMoves.add(new ChessMove(myPosition, new ChessPosition(y, x), null));
-            }
-
-            y = myPosition.getRow();
-            x = myPosition.getColumn();
-            while(x > 1 && x < 8 && y > 1 && y < 8)
-            {
-                x--;
-                y++;
-                ChessPiece piece2 = board.getPiece(new ChessPosition(y,x));
-                if(piece2 != null)
-                {
-                    if (color != piece2.getTeamColor())
-                    {
-                        myMoves.add(new ChessMove(myPosition, new ChessPosition(y, x), null));
-                    }
-                    break;
-                }
-                myMoves.add(new ChessMove(myPosition, new ChessPosition(y, x), null));
-            }
 
             return myMoves;
+        }
+
+        else if (piece1.getPieceType() == PieceType.KING)
+        {
+
         }
         return myMoves;
     }
