@@ -84,14 +84,33 @@ public class ChessPiece {
                     x += bishopDirections[i][1];
                 }
             }
-
-
             return myMoves;
         }
 
         else if (piece1.getPieceType() == PieceType.KING)
         {
-
+            int[][] kingDirections = { {1,1}, {1,-1}, {-1,1}, {-1,-1}, {0,1}, {1,0}, {0,-1}, {-1,0} };
+            for(int i = 0; i < kingDirections.length; i++)
+            {
+                int y = myPosition.getRow() + kingDirections[i][0];
+                int x = myPosition.getColumn() + kingDirections[i][1];
+                if(x >= 1 && x <= 8 && y >= 1 && y <= 8)
+                {
+                    ChessPiece piece2 = board.getPiece(new ChessPosition(y,x));
+                    if(piece2 != null)
+                    {
+                        if (color != piece2.getTeamColor())
+                        {
+                            myMoves.add(new ChessMove(myPosition, new ChessPosition(y, x), null));
+                        }
+                    }
+                    else
+                    {
+                        myMoves.add(new ChessMove(myPosition, new ChessPosition(y, x), null));
+                    }
+                }
+            }
+            return myMoves;
         }
         return myMoves;
     }
