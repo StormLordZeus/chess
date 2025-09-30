@@ -87,6 +87,7 @@ public class ChessPiece {
             }
         }
 
+        // King piece moves
         if (myType == PieceType.KING)
         {
             int[][] kingDirections = { {1,1},{1,-1},{-1,1},{-1,-1},{1,0},{-1,0},{0,1},{0,-1} };
