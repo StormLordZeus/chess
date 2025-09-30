@@ -59,6 +59,7 @@ public class ChessPiece {
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition)
     {
+        // Local variables to be used throughout
         List<ChessMove> myMoves = new ArrayList<>();
         ChessPiece piece1 = board.getPiece(myPosition);
         ChessGame.TeamColor myColor = piece1.getTeamColor();
@@ -307,6 +308,7 @@ public class ChessPiece {
             }
         }
 
+        // Rook piece moves
         if (myType == PieceType.ROOK)
         {
             int[][] rookDirections = { {1,0},{-1,0},{0,1},{0,-1} };
