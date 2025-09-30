@@ -185,6 +185,7 @@ public class ChessPiece {
             }
         }
 
+        // Pawn piece moves
         if (myType == PieceType.PAWN)
         {
             int[][] pawnDirections;
