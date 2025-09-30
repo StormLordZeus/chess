@@ -13,7 +13,8 @@ public class ChessPosition {
     private final int m_row;
     private final int m_col;
 
-    public ChessPosition(int row, int col) {
+    public ChessPosition(int row, int col)
+    {
         m_row = row;
         m_col = col;
     }
@@ -37,16 +38,8 @@ public class ChessPosition {
     }
 
     @Override
-    public String toString()
-    {
-        return String.format("[%d,%d]", m_row, m_col);
-    }
-
-    @Override
     public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+        if (o == null || getClass() != o.getClass()) return false;
         ChessPosition that = (ChessPosition) o;
         return m_row == that.m_row && m_col == that.m_col;
     }
@@ -54,5 +47,12 @@ public class ChessPosition {
     @Override
     public int hashCode() {
         return Objects.hash(m_row, m_col);
+    }
+
+    @Override
+    public String toString() {
+        return "ChessPosition{" + m_row +
+                ", " + m_col +
+                '}';
     }
 }
