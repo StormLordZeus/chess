@@ -87,6 +87,7 @@ public class ChessBoard {
 
     @Override
     public String toString() {
+        // Builds a chess board just like the tests
         StringBuilder myBoard = new StringBuilder("|");
         for (int y = 8; y > 0; y--)
         {
