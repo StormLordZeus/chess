@@ -64,6 +64,7 @@ public class ChessPiece {
         ChessGame.TeamColor myColor = piece1.getTeamColor();
         PieceType myType = piece1.getPieceType();
 
+        // Bishop piece moves
         if (myType == PieceType.BISHOP)
         {
             int[][] bishopDirections = { {1,1},{1,-1},{-1,1},{-1,-1} };
