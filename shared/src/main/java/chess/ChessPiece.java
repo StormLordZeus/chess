@@ -164,6 +164,7 @@ public class ChessPiece {
             }
         }
 
+        // Knight piece moves
         if (myType == PieceType.KNIGHT)
         {
             int[][] knightDirections = { {2,1},{2,-1},{-1,2},{1,2},{-2,1},{-2,-1},{-1,-2},{1,-2} };
