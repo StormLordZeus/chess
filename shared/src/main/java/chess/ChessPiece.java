@@ -143,6 +143,7 @@ public class ChessPiece {
                     if (piece2 != null && i == 0)
                     {
                         moveTwoBlocked = true;
+                        continue;
                     }
                     else if (piece2 != null)
                     {
@@ -177,7 +178,7 @@ public class ChessPiece {
                         continue;
                     }
                 }
-                else
+                else if (piece2 == null)
                 {
                     continue;
                 }
