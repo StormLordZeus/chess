@@ -88,6 +88,40 @@ public class ChessGame {
         BLACK
     }
 
+    public void removeInvalidCastle(ChessPosition castlePos, ChessPosition startPosition, Collection<ChessMove> moves,
+                                    ChessPiece piece, int x, int y, boolean castleVar, TeamColor color)
+    {
+        ChessMove castle = new ChessMove(startPosition, castlePos, null);
+        if (moves.contains(castle))
+        {
+            if (!castleVar || isInCheck(color))
+            {
+                moves.remove(castle);
+            }
+            else
+            {
+                if(testMove(startPosition, new ChessPosition(y,x-1), piece, null))
+                {
+                    moves.remove(castle);
+                }
+            }
+        }
+    }
+
+    public boolean testMove(ChessPosition startPos, ChessPosition endPos, ChessPiece piece1, ChessPiece piece2)
+    {
+        boolean inCheck = false;
+        mBoard.addPiece(endPos, piece1);
+        mBoard.addPiece(startPos, null);
+        if(isInCheck(piece1.getTeamColor()))
+        {
+            inCheck = true;
+        }
+        mBoard.addPiece(endPos, piece2);
+        mBoard.addPiece(startPos, piece1);
+        return inCheck;
+    }
+
     /**
      * Gets a valid moves for a piece at the given location
      *
@@ -107,95 +141,17 @@ public class ChessGame {
             System.out.println(myMoves);
             int x = startPosition.getColumn();
             int y = startPosition.getRow();
+            ChessPosition castleLeft = new ChessPosition(y, x-2);
+            ChessPosition castleRight = new ChessPosition(y, x+2);
             if (myPiece.getTeamColor() == TeamColor.WHITE)
             {
-                ChessPosition castleLeft = new ChessPosition(y, x-2);
-                ChessPosition castleRight = new ChessPosition(y, x+2);
-
-                ChessMove castle = new ChessMove(startPosition, castleLeft, null);
-                if (myMoves.contains(castle))
-                {
-                    if (!mWhiteCastleLeft || isInCheck(TeamColor.WHITE))
-                    {
-                        myMoves.remove(castle);
-                    }
-                    else
-                    {
-                        mBoard.addPiece(new ChessPosition(y,x-1), myPiece);
-                        mBoard.addPiece(startPosition, null);
-                        if(isInCheck(myPiece.getTeamColor()))
-                        {
-                            myMoves.remove(castle);
-                        }
-                        mBoard.addPiece(new ChessPosition(y,x-1), null);
-                        mBoard.addPiece(startPosition, myPiece);
-                    }
-                }
-
-                castle = new ChessMove(startPosition, castleRight, null);
-                if (myMoves.contains(castle))
-                {
-                    if (!mWhiteCastleRight || isInCheck(TeamColor.WHITE))
-                    {
-                        myMoves.remove(castle);
-                    }
-                    else
-                    {
-                        mBoard.addPiece(new ChessPosition(y,x+1), myPiece);
-                        mBoard.addPiece(startPosition, null);
-                        if(isInCheck(myPiece.getTeamColor()))
-                        {
-                            myMoves.remove(castle);
-                        }
-                        mBoard.addPiece(new ChessPosition(y,x+1), null);
-                        mBoard.addPiece(startPosition, myPiece);
-                    }
-                }
+                removeInvalidCastle(castleLeft, startPosition, myMoves, myPiece, x, y, mWhiteCastleLeft, TeamColor.WHITE);
+                removeInvalidCastle(castleRight, startPosition, myMoves, myPiece, x, y, mWhiteCastleRight, TeamColor.WHITE);
             }
             else
             {
-                ChessPosition castleLeft = new ChessPosition(y, x-2);
-                ChessPosition castleRight = new ChessPosition(y, x+2);
-
-                ChessMove castle = new ChessMove(startPosition, castleLeft, null);
-                if (myMoves.contains(castle))
-                {
-                    if (!mBlackCastleLeft || isInCheck(TeamColor.BLACK))
-                    {
-                        myMoves.remove(castle);
-                    }
-                    else
-                    {
-                        mBoard.addPiece(new ChessPosition(y,x-1), myPiece);
-                        mBoard.addPiece(startPosition, null);
-                        if(isInCheck(myPiece.getTeamColor()))
-                        {
-                            myMoves.remove(castle);
-                        }
-                        mBoard.addPiece(new ChessPosition(y,x-1), null);
-                        mBoard.addPiece(startPosition, myPiece);
-                    }
-                }
-
-                castle = new ChessMove(startPosition, castleRight, null);
-                if (myMoves.contains(castle))
-                {
-                    if (!mBlackCastleRight || isInCheck(TeamColor.BLACK))
-                    {
-                        myMoves.remove(castle);
-                    }
-                    else
-                    {
-                        mBoard.addPiece(new ChessPosition(y,x+1), myPiece);
-                        mBoard.addPiece(startPosition, null);
-                        if(isInCheck(myPiece.getTeamColor()))
-                        {
-                            myMoves.remove(castle);
-                        }
-                        mBoard.addPiece(new ChessPosition(y,x+1), null);
-                        mBoard.addPiece(startPosition, myPiece);
-                    }
-                }
+                removeInvalidCastle(castleLeft, startPosition, myMoves, myPiece, x, y, mBlackCastleLeft, TeamColor.BLACK);
+                removeInvalidCastle(castleRight, startPosition, myMoves, myPiece, x, y, mBlackCastleRight, TeamColor.BLACK);
             }
             System.out.println(myMoves);
         }
@@ -226,9 +182,7 @@ public class ChessGame {
                     }
                 }
             }
-
         }
-
 
         Iterator<ChessMove> movesIterator = myMoves.iterator();
         while (movesIterator.hasNext())
@@ -238,14 +192,10 @@ public class ChessGame {
             ChessPosition startPos = move.getStartPosition();
             ChessPosition endPos = move.getEndPosition();
             ChessPiece enemyPiece = mBoard.getPiece(endPos);
-            mBoard.addPiece(endPos, myPiece);
-            mBoard.addPiece(startPos, null);
-            if(isInCheck(myPiece.getTeamColor()))
+            if(testMove(startPos, endPos, myPiece, enemyPiece))
             {
                 movesIterator.remove();
             }
-            mBoard.addPiece(endPos, enemyPiece);
-            mBoard.addPiece(startPos, myPiece);
         }
 
         return myMoves;
