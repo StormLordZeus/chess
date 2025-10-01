@@ -11,18 +11,18 @@ import java.util.Objects;
 public class ChessMove
 {
 
-    private final ChessPosition m_startPos;
-    private final ChessPosition m_endPos;
-    private final ChessPiece.PieceType m_promotionType;
+    private final ChessPosition mStartPos;
+    private final ChessPosition mEndPos;
+    private final ChessPiece.PieceType mPromotionType;
 
 
 
     public ChessMove(ChessPosition startPosition, ChessPosition endPosition,
                      ChessPiece.PieceType promotionPiece)
     {
-        m_startPos = startPosition;
-        m_endPos = endPosition;
-        m_promotionType = promotionPiece;
+        mStartPos = startPosition;
+        mEndPos = endPosition;
+        mPromotionType = promotionPiece;
     }
 
     /**
@@ -30,7 +30,7 @@ public class ChessMove
      */
     public ChessPosition getStartPosition()
     {
-        return m_startPos;
+        return mStartPos;
     }
 
     /**
@@ -38,7 +38,7 @@ public class ChessMove
      */
     public ChessPosition getEndPosition()
     {
-        return m_endPos;
+        return mEndPos;
     }
 
     /**
@@ -49,24 +49,26 @@ public class ChessMove
      */
     public ChessPiece.PieceType getPromotionPiece()
     {
-        return m_promotionType;
+        return mPromotionType;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
+        if (o == null || getClass() != o.getClass()) { return false; }
         ChessMove chessMove = (ChessMove) o;
-        return Objects.equals(m_startPos, chessMove.m_startPos) && Objects.equals(m_endPos, chessMove.m_endPos) && m_promotionType == chessMove.m_promotionType;
+        return Objects.equals(mStartPos, chessMove.mStartPos) &&
+                Objects.equals(mEndPos, chessMove.mEndPos) &&
+                mPromotionType == chessMove.mPromotionType;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(m_startPos, m_endPos, m_promotionType);
+        return Objects.hash(mStartPos, mEndPos, mPromotionType);
     }
 
     @Override
     public String toString() {
-        return "[" + m_startPos.getRow() + "," + m_startPos.getColumn() + "]"
-                + "[" + m_endPos.getRow() + "," + m_endPos.getColumn() + "]";
+        return "[" + mStartPos.getRow() + "," + mStartPos.getColumn() + "]"
+                + "[" + mEndPos.getRow() + "," + mEndPos.getColumn() + "]";
     }
 }

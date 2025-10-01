@@ -10,13 +10,13 @@ import java.util.Objects;
  */
 public class ChessPosition {
 
-    private final int m_row;
-    private final int m_col;
+    private final int mRow;
+    private final int mCol;
 
     public ChessPosition(int row, int col)
     {
-        m_row = row;
-        m_col = col;
+        mRow = row;
+        mCol = col;
     }
 
     /**
@@ -25,7 +25,7 @@ public class ChessPosition {
      */
     public int getRow()
     {
-        return m_row;
+        return mRow;
     }
 
     /**
@@ -34,25 +34,25 @@ public class ChessPosition {
      */
     public int getColumn()
     {
-        return m_col;
+        return mCol;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
+        if (o == null || getClass() != o.getClass()) { return false; }
         ChessPosition that = (ChessPosition) o;
-        return m_row == that.m_row && m_col == that.m_col;
+        return mRow == that.mRow && mCol == that.mCol;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(m_row, m_col);
+        return Objects.hash(mRow, mCol);
     }
 
     @Override
     public String toString() {
-        return "ChessPosition{" + m_row +
-                ", " + m_col +
+        return "ChessPosition{" + mRow +
+                ", " + mCol +
                 '}';
     }
 }

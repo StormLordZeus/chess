@@ -13,13 +13,13 @@ import java.util.Objects;
  */
 public class ChessPiece {
 
-    private final ChessGame.TeamColor m_color;
-    private final ChessPiece.PieceType m_type;
+    private final ChessGame.TeamColor mColor;
+    private final ChessPiece.PieceType mType;
 
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type)
     {
-        m_type = type;
-        m_color = pieceColor;
+        mType = type;
+        mColor = pieceColor;
     }
 
     /**
@@ -39,7 +39,7 @@ public class ChessPiece {
      */
     public ChessGame.TeamColor getTeamColor()
     {
-        return m_color;
+        return mColor;
     }
 
     /**
@@ -47,7 +47,7 @@ public class ChessPiece {
      */
     public PieceType getPieceType()
     {
-        return m_type;
+        return mType;
     }
 
     /**
@@ -337,13 +337,13 @@ public class ChessPiece {
 
     @Override
     public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
+        if (o == null || getClass() != o.getClass()) { return false; }
         ChessPiece that = (ChessPiece) o;
-        return m_color == that.m_color && m_type == that.m_type;
+        return mColor == that.mColor && mType == that.mType;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(m_color, m_type);
+        return Objects.hash(mColor, mType);
     }
 }

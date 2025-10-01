@@ -11,7 +11,7 @@ import java.util.Objects;
  */
 public class ChessBoard {
 
-    ChessPiece[][] squares = new ChessPiece[8][8];
+    ChessPiece[][] mSquares = new ChessPiece[8][8];
 
     public ChessBoard() {
 
@@ -25,7 +25,7 @@ public class ChessBoard {
      */
     public void addPiece(ChessPosition position, ChessPiece piece)
     {
-        squares[position.getRow()-1][position.getColumn()-1] = piece;
+        mSquares[position.getRow()-1][position.getColumn()-1] = piece;
     }
 
     /**
@@ -37,7 +37,7 @@ public class ChessBoard {
      */
     public ChessPiece getPiece(ChessPosition position)
     {
-        return squares[position.getRow()-1][position.getColumn()-1];
+        return mSquares[position.getRow()-1][position.getColumn()-1];
     }
 
     /**
@@ -46,7 +46,7 @@ public class ChessBoard {
      */
     public void resetBoard()
     {
-        squares = new ChessPiece[8][8];
+        mSquares = new ChessPiece[8][8];
 
         addPiece(new ChessPosition(1,1), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK));
         addPiece(new ChessPosition(1,8), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK));
@@ -75,14 +75,14 @@ public class ChessBoard {
 
     @Override
     public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
+        if (o == null || getClass() != o.getClass()) { return false; }
         ChessBoard that = (ChessBoard) o;
-        return Objects.deepEquals(squares, that.squares);
+        return Objects.deepEquals(mSquares, that.mSquares);
     }
 
     @Override
     public int hashCode() {
-        return Arrays.deepHashCode(squares);
+        return Arrays.deepHashCode(mSquares);
     }
 
     @Override
