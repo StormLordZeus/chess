@@ -140,55 +140,46 @@ public class ChessPiece {
                 ChessPiece piece2 = board.getPiece(new ChessPosition(y,x));
                 if (i < 2)
                 {
-                    if (piece2 != null)
+                    if (piece2 != null && i == 0)
                     {
-                        if (i == 0)
-                        {
-                            moveTwoBlocked = true;
-                        }
+                        moveTwoBlocked = true;
+                    }
+                    else if (piece2 != null)
+                    {
+                        continue;
+                    }
+                }
+                else if (piece2 != null && piece2.getTeamColor() == color)
+                {
+                    continue;
+                }
+                else if (piece2 == null && color == ChessGame.TeamColor.WHITE && position.getRow() == 5)
+                {
+                    ChessPiece enemyPiece = board.getPiece(new ChessPosition(y - 1, x));
+                    if (enemyPiece == null)
+                    {
+                        continue;
+                    }
+                    if (enemyPiece.getPieceType() != PieceType.PAWN)
+                    {
+                        continue;
+                    }
+                }
+                else if (piece2 == null && color == ChessGame.TeamColor.BLACK && position.getRow() == 4)
+                {
+                    ChessPiece enemyPiece = board.getPiece(new ChessPosition(y+1,x));
+                    if (enemyPiece == null)
+                    {
+                        continue;
+                    }
+                    if (enemyPiece.getPieceType() != PieceType.PAWN)
+                    {
                         continue;
                     }
                 }
                 else
                 {
-                    if (piece2 != null)
-                    {
-                        if (piece2.getTeamColor() == color)
-                        {
-                            continue;
-                        }
-                    }
-                    else
-                    {
-                        if (color == ChessGame.TeamColor.WHITE && position.getRow() == 5)
-                        {
-                            ChessPiece enemyPiece = board.getPiece(new ChessPosition(y-1,x));
-                            if (enemyPiece == null)
-                            {
-                                continue;
-                            }
-                            if (enemyPiece.getPieceType() != PieceType.PAWN)
-                            {
-                                continue;
-                            }
-                        }
-                        else if (color == ChessGame.TeamColor.BLACK && position.getRow() == 4)
-                        {
-                            ChessPiece enemyPiece = board.getPiece(new ChessPosition(y+1,x));
-                            if (enemyPiece == null)
-                            {
-                                continue;
-                            }
-                            if (enemyPiece.getPieceType() != PieceType.PAWN)
-                            {
-                                continue;
-                            }
-                        }
-                        else
-                        {
-                            continue;
-                        }
-                    }
+                    continue;
                 }
 
 
@@ -302,3 +293,4 @@ public class ChessPiece {
         return Objects.hash(mColor, mType);
     }
 }
+
