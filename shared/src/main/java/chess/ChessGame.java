@@ -257,141 +257,102 @@ public class ChessGame {
      * @param move chess move to perform
      * @throws InvalidMoveException if move is invalid
      */
-    public void makeMove(ChessMove move) throws InvalidMoveException
-    {
+    public void makeMove(ChessMove move) throws InvalidMoveException {
         ChessPosition startPos = move.getStartPosition();
         ChessPosition endPos = move.getEndPosition();
         ChessPiece myPiece = mBoard.getPiece(startPos);
-        if (myPiece != null)
-        {
+        if (myPiece != null) {
             TeamColor myColor = myPiece.getTeamColor();
             if (this.validMoves(startPos).contains(move) && myColor == mTeamTurn) {
-                if (myPiece.getPieceType() == ChessPiece.PieceType.KING)
-                {
+                if (myPiece.getPieceType() == ChessPiece.PieceType.KING) {
                     mEnPassantPos = null;
 
                     int startCol = startPos.getColumn();
                     int endCol = endPos.getColumn();
-                    if (Math.abs(startCol - endCol) == 2)
-                    {
-                        if (endCol > startCol)
-                        {
-                            if (mTeamTurn == TeamColor.WHITE)
-                            {
+                    if (Math.abs(startCol - endCol) == 2) {
+                        if (endCol > startCol) {
+                            if (mTeamTurn == TeamColor.WHITE) {
                                 mBoard.addPiece(new ChessPosition(1,6), new ChessPiece(TeamColor.WHITE, ChessPiece.PieceType.ROOK));
                                 mBoard.addPiece(new ChessPosition(1,8), null);
                             }
-                            else
-                            {
+                            else {
                                 mBoard.addPiece(new ChessPosition(8,6), new ChessPiece(TeamColor.BLACK, ChessPiece.PieceType.ROOK));
                                 mBoard.addPiece(new ChessPosition(8,8), null);
                             }
                         }
-                        else
-                        {
-                            if (mTeamTurn == TeamColor.WHITE)
-                            {
+                        else {
+                            if (mTeamTurn == TeamColor.WHITE) {
                                 mBoard.addPiece(new ChessPosition(1,4), new ChessPiece(TeamColor.WHITE, ChessPiece.PieceType.ROOK));
                                 mBoard.addPiece(new ChessPosition(1,1), null);
                             }
-                            else
-                            {
+                            else {
                                 mBoard.addPiece(new ChessPosition(8,4), new ChessPiece(TeamColor.BLACK, ChessPiece.PieceType.ROOK));
                                 mBoard.addPiece(new ChessPosition(8,1), null);
                             }
                         }
                     }
-                    if (mTeamTurn == TeamColor.WHITE)
-                    {
+                    if (mTeamTurn == TeamColor.WHITE) {
                         mWhiteCastleLeft = false;
                         mWhiteCastleRight = false;
                     }
-                    else
-                    {
+                    else {
                         mBlackCastleLeft = false;
                         mBlackCastleRight = false;
                     }
                 }
-                else if (myPiece.getPieceType() == ChessPiece.PieceType.ROOK)
-                {
+                else if (myPiece.getPieceType() == ChessPiece.PieceType.ROOK) {
                     mEnPassantPos = null;
 
-                    if (startPos.getRow() == 1 && startPos.getColumn() == 1)
-                    {
+                    if (startPos.getRow() == 1 && startPos.getColumn() == 1) {
                         mWhiteCastleLeft = false;
                     }
-                    else if (startPos.getRow() == 1 && startPos.getColumn() == 8)
-                    {
+                    else if (startPos.getRow() == 1 && startPos.getColumn() == 8) {
                         mWhiteCastleRight = false;
                     }
-                    else if (startPos.getRow() == 8 && startPos.getColumn() == 1)
-                    {
+                    else if (startPos.getRow() == 8 && startPos.getColumn() == 1) {
                         mBlackCastleLeft = false;
                     }
-                    else if (startPos.getRow() == 8 && startPos.getColumn() == 8)
-                    {
+                    else if (startPos.getRow() == 8 && startPos.getColumn() == 8) {
                         mBlackCastleRight = false;
                     }
                 }
-                else if (myPiece.getPieceType() == ChessPiece.PieceType.PAWN)
-                {
-                    if (Math.abs(startPos.getRow() - endPos.getRow()) == 2)
-                    {
+                else if (myPiece.getPieceType() == ChessPiece.PieceType.PAWN) {
+                    if (Math.abs(startPos.getRow() - endPos.getRow()) == 2) {
                         mEnPassantPos = endPos;
                     }
-                    else if (mEnPassantPos != null)
-                    {
+                    else if (mEnPassantPos != null) {
                         ChessPosition enPassantCapture;
-                        if (myColor == TeamColor.WHITE)
-                        {
+                        if (myColor == TeamColor.WHITE) {
                             enPassantCapture = new ChessPosition(mEnPassantPos.getRow()+1, mEnPassantPos.getColumn());
                         }
-                        else
-                        {
+                        else {
                             enPassantCapture = new ChessPosition(mEnPassantPos.getRow()-1, mEnPassantPos.getColumn());
                         }
-                        if (enPassantCapture.equals(endPos))
-                        {
+                        if (enPassantCapture.equals(endPos)) {
                             mBoard.addPiece(mEnPassantPos, null);
                         }
                         mEnPassantPos = null;
                     }
                 }
-                else
-                {
-                    mEnPassantPos = null;
-                }
+                else { mEnPassantPos = null; }
 
 
-                if (move.getPromotionPiece() != null)
-                {
+                if (move.getPromotionPiece() != null) {
                     mBoard.addPiece(endPos, new ChessPiece(myColor, move.getPromotionPiece()));
                 }
-                else
-                {
-                    mBoard.addPiece(endPos, myPiece);
-                }
+                else { mBoard.addPiece(endPos, myPiece); }
                 mBoard.addPiece(startPos, null);
 
 
-                if (mTeamTurn == TeamColor.WHITE)
-                {
-                    mTeamTurn = TeamColor.BLACK;
-                }
-                else
-                {
-                    mTeamTurn = TeamColor.WHITE;
-                }
+                if (mTeamTurn == TeamColor.WHITE) { mTeamTurn = TeamColor.BLACK; }
+                else { mTeamTurn = TeamColor.WHITE; }
                 System.out.println("The final board is: \n" + mBoard);
             }
             else {
-                throw new InvalidMoveException();
-            }
+                throw new InvalidMoveException(); }
         }
-        else
-        {
-            throw new InvalidMoveException();
-        }
+        else {
+            throw new InvalidMoveException(); }
     }
 
     /**
