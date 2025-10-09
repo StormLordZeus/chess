@@ -22,14 +22,14 @@ public class MemoryUserDAO implements UserDAO{
     }
 
     @Override
-    public UserData getUser(String username) throws DataAccessException
+    public UserData getUser(String username)
     {
         for (UserData user : users) {
             if (user.username().equals(username)) {
                 return user;
             }
         }
-        throw new DataAccessException("Incorrect username");
+        return null;
     }
 
     @Override

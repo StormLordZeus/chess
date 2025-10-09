@@ -1,5 +1,6 @@
 package service;
 
+import dataaccess.AlreadyTakenException;
 import dataaccess.DataAccessException;
 import dataaccess.MemoryAuthDAO;
 import dataaccess.MemoryUserDAO;
@@ -18,7 +19,7 @@ public class UserService
     {
         if (userDataAccess.getUser(request.username()) != null)
         {
-            throw new DataAccessException("Username already taken");
+            throw new AlreadyTakenException("Username already taken");
         }
         userDataAccess.createUser(new UserData(request.username(), request.password(), request.email()));
 
