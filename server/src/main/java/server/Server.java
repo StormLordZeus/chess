@@ -3,8 +3,10 @@ package server;
 import com.google.gson.Gson;
 import dataaccess.AlreadyTakenException;
 import dataaccess.DataAccessException;
+import dataaccess.InvalidCredentialsException;
 import io.javalin.*;
 import io.javalin.http.Context;
+import model.LoginRequest;
 import model.RegisterRequest;
 import model.RegisterResult;
 import service.UserService;
@@ -22,7 +24,18 @@ public class Server {
         mJavalin = Javalin.create(config -> config.staticFiles.add("web"));
 
         // Register your endpoints and exception handlers here.
+        createHandlers();
+    }
+
+    private void createHandlers()
+    {
         mJavalin.post("/user", Server::handleRegister);
+        mJavalin.post("/session", Server::handleLogin);
+        mJavalin.delete("/session", Server::handleLogout);
+        mJavalin.get("/game", Server::handleListGames);
+        mJavalin.post("/game", Server::handleCreateGame);
+        mJavalin.put("/game", Server::handleJoinGame);
+        mJavalin.delete("db", Server::handleClear);
     }
 
     public int run(int desiredPort) {
@@ -38,22 +51,61 @@ public class Server {
     {
         try {
             RegisterRequest request = serializer.fromJson(ctx.body(), RegisterRequest.class);
-            System.out.println("I have created the request object: " + request.username() + " and " + request.password());
-            RegisterResult result = mService.register(request);
-            System.out.println("I have created the result object");
-            String resultJson = new Gson().toJson(result);
-            System.out.println("I have created the JSON result object");
+            String resultJson = new Gson().toJson(mService.register(request));
             ctx.status(200).result(resultJson).contentType("application/json");
         }
         catch (AlreadyTakenException e) {
-            String json = serializer.toJson(Map.of("message", e.getMessage()));
-            ctx.status(403).result(json).contentType("application/json");
+            String errorJson = serializer.toJson(Map.of("message", e.getMessage()));
+            ctx.status(403).result(errorJson).contentType("application/json");
         }
 
         catch (DataAccessException e) {
-            String json = serializer.toJson(Map.of("message", e.getMessage()));
-            ctx.status(500).result(json).contentType("application/json");
+            String errorJson = serializer.toJson(Map.of("message", e.getMessage()));
+            ctx.status(500).result(errorJson).contentType("application/json");
         }
+    }
+
+    private static void handleLogin(Context ctx)
+    {
+        try {
+            LoginRequest request = serializer.fromJson(ctx.body(), LoginRequest.class);
+            String resultJson = new Gson().toJson(mService.login(request));
+            ctx.status(200).result(resultJson).contentType("application/json");
+        }
+        catch (InvalidCredentialsException e) {
+            String errorJson = serializer.toJson(Map.of("message", e.getMessage()));
+            ctx.status(403).result(errorJson).contentType("application/json");
+        }
+
+        catch (DataAccessException e) {
+            String errorJson = serializer.toJson(Map.of("message", e.getMessage()));
+            ctx.status(500).result(errorJson).contentType("application/json");
+        }
+    }
+
+    private static void handleLogout(Context ctx)
+    {
+
+    }
+
+    private static void handleListGames(Context ctx)
+    {
+
+    }
+
+    private static void handleCreateGame(Context ctx)
+    {
+
+    }
+
+    private static void handleJoinGame(Context ctx)
+    {
+
+    }
+
+    private static void handleClear(Context ctx)
+    {
+
     }
 
     private static <T> T getBodyObject(Context ctx, Class<T> clazz) {

@@ -4,10 +4,8 @@ import dataaccess.AlreadyTakenException;
 import dataaccess.DataAccessException;
 import dataaccess.MemoryAuthDAO;
 import dataaccess.MemoryUserDAO;
-import model.AuthData;
-import model.RegisterRequest;
-import model.RegisterResult;
-import model.UserData;
+import model.*;
+
 import java.util.UUID;
 
 public class UserService
@@ -27,5 +25,10 @@ public class UserService
         authDataAccess.createAuth(new AuthData(authToken, request.username()));
 
         return new RegisterResult(request.username(), authToken);
+    }
+
+    public LoginResult login(LoginRequest request) throws DataAccessException
+    {
+        return null;
     }
 }
