@@ -8,7 +8,6 @@ import io.javalin.*;
 import io.javalin.http.Context;
 import model.LoginRequest;
 import model.RegisterRequest;
-import model.RegisterResult;
 import service.UserService;
 
 import java.util.Map;

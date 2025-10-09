@@ -1,34 +1,64 @@
 package service;
 
-import dataaccess.AlreadyTakenException;
-import dataaccess.DataAccessException;
-import dataaccess.MemoryAuthDAO;
-import dataaccess.MemoryUserDAO;
+import dataaccess.*;
+import io.javalin.http.UnauthorizedResponse;
 import model.*;
 
 import java.util.UUID;
 
 public class UserService
 {
-    private static final MemoryUserDAO userDataAccess = new MemoryUserDAO();
-    private static final MemoryAuthDAO authDataAccess = new MemoryAuthDAO();
+    private static final MemoryUserDAO mUserDataAccess = new MemoryUserDAO();
+    private static final MemoryAuthDAO mAuthDataAccess = new MemoryAuthDAO();
 
     public RegisterResult register(RegisterRequest request) throws DataAccessException
     {
-        if (userDataAccess.getUser(request.username()) != null)
+        if (mUserDataAccess.getUser(request.username()) != null)
         {
             throw new AlreadyTakenException("Username already taken");
         }
-        userDataAccess.createUser(new UserData(request.username(), request.password(), request.email()));
+        mUserDataAccess.createUser(new UserData(request.username(), request.password(), request.email()));
 
-        String authToken = UUID.randomUUID().toString();
-        authDataAccess.createAuth(new AuthData(authToken, request.username()));
+        String authToken = authorizeUser(request.username());
 
         return new RegisterResult(request.username(), authToken);
     }
 
     public LoginResult login(LoginRequest request) throws DataAccessException
     {
-        return null;
+        UserData user = mUserDataAccess.getUser(request.username());
+        if (user == null)
+        {
+            throw new InvalidCredentialsException("Invalid Credentials");
+        }
+        if (!request.password().equals(user.password()))
+        {
+            throw new InvalidCredentialsException("Invalid Credentials");
+        }
+        String authToken = authorizeUser(request.username());
+
+        return new LoginResult(request.username(), authToken);
+    }
+
+    public void logout(LogoutRequest request) throws DataAccessException
+    {
+        AuthData auth = mAuthDataAccess.getAuth(request.authToken());
+        if (auth == null)
+        {
+            throw new UnauthorizedResponse("Auth token not found");
+        }
+        mAuthDataAccess.deleteAuth(auth);
+    }
+
+    public void clearUsers()
+    {
+        mUserDataAccess.clearUsers();
+    }
+
+    private String authorizeUser(String username) throws DataAccessException
+    {
+        String authToken = UUID.randomUUID().toString();
+        mAuthDataAccess.createAuth(new AuthData(authToken, username));
+        return authToken;
     }
 }
