@@ -1,6 +1,7 @@
 package dataaccess;
 
 import model.UserData;
+import org.eclipse.jetty.http.BadMessageException;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -13,7 +14,7 @@ public class MemoryUserDAO implements UserDAO{
     {
         if (users.contains(user))
         {
-            throw new DataAccessException("User already taken");
+            throw new DataAccessException("Error: User already taken");
         }
         else
         {

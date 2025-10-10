@@ -117,7 +117,8 @@ public class TestGameService
         }
     }
 
-    public void TestClearGames(GameService tester)  {
+    public void TestClearGames(GameService tester)
+    {
         tester.clearGames();
         System.out.println("Successfully cleared all games");
     }

@@ -6,6 +6,7 @@ import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 import io.javalin.http.UnauthorizedResponse;
 import model.*;
+import org.eclipse.jetty.http.BadMessageException;
 
 public class GameService
 {
@@ -26,6 +27,10 @@ public class GameService
 
     public CreateGameResult createGame(CreateGameRequest request) throws DataAccessException
     {
+        if (request.gameName() == null)
+        {
+            throw new BadMessageException("Error: Game name was not sent");
+        }
         authenticate(request.authToken());
         return new CreateGameResult(mGameDataAccess.createGame(request.gameName()).gameID());
     }
@@ -47,7 +52,7 @@ public class GameService
         AuthData auth = mAuthDataAccess.getAuth(authToken);
         if (auth == null)
         {
-            throw new UnauthorizedResponse("Auth token not found");
+            throw new UnauthorizedResponse("Error: Auth token not found");
         }
         return auth;
     }

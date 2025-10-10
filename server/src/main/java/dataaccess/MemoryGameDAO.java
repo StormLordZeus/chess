@@ -4,6 +4,7 @@ import chess.ChessGame;
 import chess.ChessMove;
 import chess.InvalidMoveException;
 import model.GameData;
+import org.eclipse.jetty.http.BadMessageException;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -11,13 +12,13 @@ import java.util.Set;
 public class MemoryGameDAO implements GameDAO
 {
     private static final Set<GameData> games = new HashSet<>();
-    private int gameIDCounter = 0;
+    private int gameIDCounter = 1;
 
     @Override
     public GameData createGame(String gameName) throws DataAccessException {
         for (GameData game : games) {
             if (game.gameName().equals(gameName)) {
-                throw new DataAccessException("Game name already taken");
+                throw new DataAccessException("Error: Game name already taken");
             }
         }
         GameData newGame = new GameData(gameIDCounter, null, null, gameName, new ChessGame());
@@ -33,20 +34,18 @@ public class MemoryGameDAO implements GameDAO
                 return game;
             }
         }
-        throw new DataAccessException("Game does not exist");
+        throw new BadMessageException("Error: Game does not exist");
     }
 
     @Override
-    public Set<GameData> listGames() throws DataAccessException {
-        if (games.isEmpty())
-        {
-            throw new DataAccessException("No games available to list");
-        }
+    public Set<GameData> listGames()
+    {
         return games;
     }
 
     @Override
-    public void updateGame(int gameID, String color, String username, ChessMove move) throws DataAccessException, InvalidMoveException {
+    public void updateGame(int gameID, String color, String username, ChessMove move) throws DataAccessException, InvalidMoveException
+    {
         GameData game = getGame(gameID);
         if (color != null && username != null)
         {
@@ -54,7 +53,7 @@ public class MemoryGameDAO implements GameDAO
             {
                 if (game.whiteUsername() != null)
                 {
-                    throw new DataAccessException("White Player already taken");
+                    throw new AlreadyTakenException("Error: White Player already taken");
                 }
                 GameData newGame = new GameData(gameID, username, game.blackUsername(), game.gameName(), game.game());
                 games.remove(game);
@@ -65,7 +64,7 @@ public class MemoryGameDAO implements GameDAO
             {
                 if (game.blackUsername() != null)
                 {
-                    throw new DataAccessException("Black Player already taken");
+                    throw new AlreadyTakenException("Error: Black Player already taken");
                 }
                 GameData newGame = new GameData(gameID, game.whiteUsername(), username, game.gameName(), game.game());
                 games.remove(game);
@@ -78,7 +77,7 @@ public class MemoryGameDAO implements GameDAO
             game.game().makeMove(move);
             return;
         }
-        throw new DataAccessException("No player or move specified to update");
+        throw new BadMessageException("Error: No player or move specified to update");
     }
 
     @Override

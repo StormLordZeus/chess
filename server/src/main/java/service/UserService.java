@@ -3,6 +3,7 @@ package service;
 import dataaccess.*;
 import io.javalin.http.UnauthorizedResponse;
 import model.*;
+import org.eclipse.jetty.http.BadMessageException;
 
 import java.util.UUID;
 
@@ -19,9 +20,21 @@ public class UserService
 
     public RegisterResult register(RegisterRequest request) throws DataAccessException
     {
+        if (request.username() == null)
+        {
+            throw new BadMessageException("Error: No Username Sent");
+        }
+        if (request.password() == null)
+        {
+            throw new BadMessageException("Error: No password Sent");
+        }
+        if (request.email() == null)
+        {
+            throw new BadMessageException("Error: No email Sent");
+        }
         if (mUserDataAccess.getUser(request.username()) != null)
         {
-            throw new AlreadyTakenException("Username already taken");
+            throw new AlreadyTakenException("Error: Username already taken");
         }
         mUserDataAccess.createUser(new UserData(request.username(), request.password(), request.email()));
 
@@ -32,14 +45,22 @@ public class UserService
 
     public LoginResult login(LoginRequest request) throws DataAccessException
     {
+        if (request.username() == null)
+        {
+            throw new BadMessageException("Error: No Username Sent");
+        }
+        if (request.password() == null)
+        {
+            throw new BadMessageException("Error: No password Sent");
+        }
         UserData user = mUserDataAccess.getUser(request.username());
         if (user == null)
         {
-            throw new InvalidCredentialsException("Invalid Credentials");
+            throw new InvalidCredentialsException("Error: Invalid Credentials");
         }
         if (!request.password().equals(user.password()))
         {
-            throw new InvalidCredentialsException("Invalid Credentials");
+            throw new InvalidCredentialsException("Error: Invalid Credentials");
         }
         String authToken = authorizeUser(request.username());
 
@@ -51,7 +72,7 @@ public class UserService
         AuthData auth = mAuthDataAccess.getAuth(request.authToken());
         if (auth == null)
         {
-            throw new UnauthorizedResponse("Auth token not found");
+            throw new UnauthorizedResponse("Error: Auth token not found");
         }
         mAuthDataAccess.deleteAuth(auth);
     }
@@ -59,6 +80,7 @@ public class UserService
     public void clearUsers()
     {
         mUserDataAccess.clearUsers();
+        mAuthDataAccess.clearAuths();
     }
 
     private String authorizeUser(String username) throws DataAccessException

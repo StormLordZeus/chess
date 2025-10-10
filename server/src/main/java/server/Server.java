@@ -7,6 +7,7 @@ import io.javalin.*;
 import io.javalin.http.Context;
 import io.javalin.http.UnauthorizedResponse;
 import model.*;
+import org.eclipse.jetty.http.BadMessageException;
 import service.GameService;
 import service.UserService;
 
@@ -70,7 +71,10 @@ public class Server {
         catch (AlreadyTakenException e) {
             displayErrorMessage(e, 403, ctx);
         }
-
+        catch (BadMessageException e)
+        {
+            displayErrorMessage(e, 400, ctx);
+        }
         catch (DataAccessException e) {
             displayErrorMessage(e, 500, ctx);
         }
@@ -84,9 +88,12 @@ public class Server {
             ctx.status(200).result(resultJson).contentType("application/json");
         }
         catch (InvalidCredentialsException e) {
-            displayErrorMessage(e, 403, ctx);
+            displayErrorMessage(e, 401, ctx);
         }
-
+        catch (BadMessageException e)
+        {
+            displayErrorMessage(e, 400, ctx);
+        }
         catch (DataAccessException e) {
             displayErrorMessage(e, 500, ctx);
         }
@@ -99,11 +106,12 @@ public class Server {
             mUserService.logout(request);
             ctx.status(200);
         }
-        catch (UnauthorizedResponse e) {
+        catch (UnauthorizedResponse e)
+        {
             displayErrorMessage(e, 401, ctx);
         }
-
-        catch (DataAccessException e) {
+        catch (DataAccessException e)
+        {
             displayErrorMessage(e, 500, ctx);
         }
 
@@ -116,11 +124,12 @@ public class Server {
             String resultJson = new Gson().toJson(mGameService.listGames(request));
             ctx.status(200).result(resultJson).contentType("application/json");
         }
-        catch (UnauthorizedResponse e) {
+        catch (UnauthorizedResponse e)
+        {
             displayErrorMessage(e, 401, ctx);
         }
-
-        catch (DataAccessException e) {
+        catch (DataAccessException e)
+        {
             displayErrorMessage(e, 500, ctx);
         }
     }
@@ -141,6 +150,10 @@ public class Server {
         catch (AlreadyTakenException e)
         {
             displayErrorMessage(e, 403, ctx);
+        }
+        catch (BadMessageException e)
+        {
+            displayErrorMessage(e, 400, ctx);
         }
         catch (DataAccessException e)
         {
@@ -166,6 +179,10 @@ public class Server {
         {
             displayErrorMessage(e, 403, ctx);
         }
+        catch (BadMessageException e)
+        {
+            displayErrorMessage(e, 400, ctx);
+        }
         catch (DataAccessException | InvalidMoveException e)
         {
             displayErrorMessage(e, 500, ctx);
@@ -177,13 +194,6 @@ public class Server {
     {
         mUserService.clearUsers();
         mGameService.clearGames();
-    }
 
-    private static <T> T getBodyObject(Context ctx, Class<T> clazz) {
-        T body = mSerializer.fromJson(ctx.body(), clazz);
-        if (body == null) {
-            throw new RuntimeException("Missing request body");
-        }
-        return body;
     }
 }

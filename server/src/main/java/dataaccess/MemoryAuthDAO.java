@@ -1,5 +1,6 @@
 package dataaccess;
 
+import io.javalin.http.UnauthorizedResponse;
 import model.AuthData;
 
 import java.util.HashSet;
@@ -12,7 +13,7 @@ public class MemoryAuthDAO implements AuthDAO{
     public void createAuth(AuthData auth) throws DataAccessException {
         if (authTokens.contains(auth))
         {
-            throw new DataAccessException("Auth Token already exists");
+            throw new DataAccessException("Error: Auth Token already exists");
         }
         authTokens.add(auth);
     }
@@ -26,7 +27,7 @@ public class MemoryAuthDAO implements AuthDAO{
                 return auth;
             }
         }
-        throw new DataAccessException("No auth token found");
+        throw new UnauthorizedResponse("Error: No auth token found");
     }
 
     @Override
