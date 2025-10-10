@@ -6,6 +6,7 @@ import dataaccess.MemoryAuthDAO;
 import dataaccess.MemoryGameDAO;
 import dataaccess.MemoryUserDAO;
 import model.*;
+import org.eclipse.jetty.http.BadMessageException;
 
 public class TestGameService
 {
@@ -39,13 +40,13 @@ public class TestGameService
 
         // Test JoinGame
         System.out.println("Joining FirstGame as player white as StormLordZeus");
-        myTester.testJoinGame(tester, 0, "WHITE");
+        myTester.testJoinGame(tester, 1, "WHITE");
         System.out.println("Joining FirstGame as player black as StormLordZeus");
-        myTester.testJoinGame(tester, 0, "BLACK");
+        myTester.testJoinGame(tester, 1, "BLACK");
         System.out.println("Joining FirstGame again as player white as StormLordZeus");
-        myTester.testJoinGame(tester, 0, "WHITE");
+        myTester.testJoinGame(tester, 1, "WHITE");
         System.out.println("Joining FirstGame again as player black as StormLordZeus");
-        myTester.testJoinGame(tester, 0, "BLACK");
+        myTester.testJoinGame(tester, 1, "BLACK");
         System.out.println("Joining an unknown gameID as white as StormLordZeus");
         myTester.testJoinGame(tester, 100, "WHITE");
         System.out.println();
@@ -53,7 +54,7 @@ public class TestGameService
         // Test ListGames
         System.out.println("Listing all games. First create SecondGame and join as white");
         myTester.testCreateGame(tester, "SecondGame");
-        myTester.testJoinGame(tester, 1, "WHITE");
+        myTester.testJoinGame(tester, 2, "WHITE");
         myTester.testListGames(tester);
         System.out.println("I will test the negative ListGames test after testing clear so there are no games to list");
         System.out.println();
@@ -108,10 +109,15 @@ public class TestGameService
             tester.joinGame(requestTest);
             System.out.println("Successfully joined the game with ID " + gameID + " as " + color);
         }
+        catch (BadMessageException e)
+        {
+            System.out.println("Successfully threw exception with bad message error: " + e.getMessage());
+        }
         catch (DataAccessException e)
         {
             System.out.println("Successfully threw exception with error: " + e.getMessage());
-        } catch (InvalidMoveException e) {
+        }
+        catch (InvalidMoveException e) {
             System.out.println("How did you even trigger this error? " + e.getMessage());
             throw new RuntimeException(e);
         }

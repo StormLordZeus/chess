@@ -3,6 +3,7 @@ package service;
 import dataaccess.DataAccessException;
 import dataaccess.MemoryAuthDAO;
 import dataaccess.MemoryUserDAO;
+import io.javalin.http.UnauthorizedResponse;
 import model.*;
 
 public class TestUserService
@@ -90,6 +91,10 @@ public class TestUserService
             LogoutRequest requestTest = new LogoutRequest(mAuthToken);
             tester.logout(requestTest);
             System.out.println("Successfully logged out user");
+        }
+        catch (UnauthorizedResponse e)
+        {
+            System.out.println("Successfully threw exception with unauthorized error: " + e.getMessage());
         }
         catch (DataAccessException e)
         {
