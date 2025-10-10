@@ -6,7 +6,10 @@ import dataaccess.DataAccessException;
 import dataaccess.InvalidCredentialsException;
 import io.javalin.*;
 import io.javalin.http.Context;
+import io.javalin.http.UnauthorizedResponse;
 import model.LoginRequest;
+import model.LoginResult;
+import model.LogoutRequest;
 import model.RegisterRequest;
 import service.UserService;
 
@@ -15,9 +18,10 @@ import java.util.Map;
 
 public class Server {
 
-    private static final Gson serializer  = new Gson();
+    private static final Gson mSerializer  = new Gson();
     private final Javalin mJavalin;
     private static final UserService mService = new UserService();
+    private static String mAuthToken;
 
     public Server() {
         mJavalin = Javalin.create(config -> config.staticFiles.add("web"));
@@ -49,17 +53,17 @@ public class Server {
     private static void handleRegister(Context ctx)
     {
         try {
-            RegisterRequest request = serializer.fromJson(ctx.body(), RegisterRequest.class);
+            RegisterRequest request = mSerializer.fromJson(ctx.body(), RegisterRequest.class);
             String resultJson = new Gson().toJson(mService.register(request));
             ctx.status(200).result(resultJson).contentType("application/json");
         }
         catch (AlreadyTakenException e) {
-            String errorJson = serializer.toJson(Map.of("message", e.getMessage()));
+            String errorJson = mSerializer.toJson(Map.of("message", e.getMessage()));
             ctx.status(403).result(errorJson).contentType("application/json");
         }
 
         catch (DataAccessException e) {
-            String errorJson = serializer.toJson(Map.of("message", e.getMessage()));
+            String errorJson = mSerializer.toJson(Map.of("message", e.getMessage()));
             ctx.status(500).result(errorJson).contentType("application/json");
         }
     }
@@ -67,23 +71,39 @@ public class Server {
     private static void handleLogin(Context ctx)
     {
         try {
-            LoginRequest request = serializer.fromJson(ctx.body(), LoginRequest.class);
-            String resultJson = new Gson().toJson(mService.login(request));
+            LoginRequest request = mSerializer.fromJson(ctx.body(), LoginRequest.class);
+            LoginResult result = mService.login(request);
+            mAuthToken = result.authToken();
+            String resultJson = new Gson().toJson(result);
             ctx.status(200).result(resultJson).contentType("application/json");
         }
         catch (InvalidCredentialsException e) {
-            String errorJson = serializer.toJson(Map.of("message", e.getMessage()));
+            String errorJson = mSerializer.toJson(Map.of("message", e.getMessage()));
             ctx.status(403).result(errorJson).contentType("application/json");
         }
 
         catch (DataAccessException e) {
-            String errorJson = serializer.toJson(Map.of("message", e.getMessage()));
+            String errorJson = mSerializer.toJson(Map.of("message", e.getMessage()));
             ctx.status(500).result(errorJson).contentType("application/json");
         }
     }
 
     private static void handleLogout(Context ctx)
     {
+        try {
+            LogoutRequest request = mSerializer.fromJson(ctx.header("authorization"), LogoutRequest.class);
+            mService.logout(request);
+            ctx.status(200);
+        }
+        catch (UnauthorizedResponse e) {
+            String errorJson = mSerializer.toJson(Map.of("message", e.getMessage()));
+            ctx.status(401).result(errorJson).contentType("application/json");
+        }
+
+        catch (DataAccessException e) {
+            String errorJson = mSerializer.toJson(Map.of("message", e.getMessage()));
+            ctx.status(500).result(errorJson).contentType("application/json");
+        }
 
     }
 
@@ -108,7 +128,7 @@ public class Server {
     }
 
     private static <T> T getBodyObject(Context ctx, Class<T> clazz) {
-        T body = serializer.fromJson(ctx.body(), clazz);
+        T body = mSerializer.fromJson(ctx.body(), clazz);
         if (body == null) {
             throw new RuntimeException("Missing request body");
         }
