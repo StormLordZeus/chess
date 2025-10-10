@@ -16,7 +16,7 @@ import java.util.Map;
 
 public class Server {
 
-    private static final Gson mSerializer = new Gson();
+    private static final Gson SERIALIZER = new Gson();
     private final Javalin mJavalin;
     private static UserService mUserService;
     private static GameService mGameService;
@@ -57,14 +57,14 @@ public class Server {
 
     private static void displayErrorMessage(Exception e, int errorCode, Context ctx)
     {
-        String errorJson = mSerializer.toJson(Map.of("message", e.getMessage()));
+        String errorJson = SERIALIZER.toJson(Map.of("message", e.getMessage()));
         ctx.status(errorCode).result(errorJson).contentType("application/json");
     }
 
     private static void handleRegister(Context ctx)
     {
         try {
-            RegisterRequest request = mSerializer.fromJson(ctx.body(), RegisterRequest.class);
+            RegisterRequest request = SERIALIZER.fromJson(ctx.body(), RegisterRequest.class);
             String resultJson = new Gson().toJson(mUserService.register(request));
             ctx.status(200).result(resultJson).contentType("application/json");
         }
@@ -83,7 +83,7 @@ public class Server {
     private static void handleLogin(Context ctx)
     {
         try {
-            LoginRequest request = mSerializer.fromJson(ctx.body(), LoginRequest.class);
+            LoginRequest request = SERIALIZER.fromJson(ctx.body(), LoginRequest.class);
             String resultJson = new Gson().toJson(mUserService.login(request));
             ctx.status(200).result(resultJson).contentType("application/json");
         }
@@ -138,7 +138,7 @@ public class Server {
     {
         try {
             String authToken = ctx.header("authorization");
-            CreateGameRequest bodyRequest = mSerializer.fromJson(ctx.body(), CreateGameRequest.class);
+            CreateGameRequest bodyRequest = SERIALIZER.fromJson(ctx.body(), CreateGameRequest.class);
             CreateGameRequest request = new CreateGameRequest(bodyRequest.gameName(), authToken);
             String resultJson = new Gson().toJson(mGameService.createGame(request));
             ctx.status(200).result(resultJson).contentType("application/json");
@@ -166,7 +166,7 @@ public class Server {
     {
         try {
             String authToken = ctx.header("authorization");
-            JoinGameRequest bodyRequest = mSerializer.fromJson(ctx.body(), JoinGameRequest.class);
+            JoinGameRequest bodyRequest = SERIALIZER.fromJson(ctx.body(), JoinGameRequest.class);
             JoinGameRequest request = new JoinGameRequest(bodyRequest.gameID(), bodyRequest.playerColor(), authToken);
             mGameService.joinGame(request);
             ctx.status(200);

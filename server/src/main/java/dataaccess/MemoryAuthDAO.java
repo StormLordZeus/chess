@@ -7,20 +7,20 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class MemoryAuthDAO implements AuthDAO{
-    private static final Set<AuthData> authTokens = new HashSet<>();
+    private static final Set<AuthData> AUTH_TOKENS = new HashSet<>();
 
     @Override
     public void createAuth(AuthData auth) throws DataAccessException {
-        if (authTokens.contains(auth))
+        if (AUTH_TOKENS.contains(auth))
         {
             throw new DataAccessException("Error: Auth Token already exists");
         }
-        authTokens.add(auth);
+        AUTH_TOKENS.add(auth);
     }
 
     @Override
     public AuthData getAuth(String authToken) {
-        for (AuthData auth : authTokens)
+        for (AuthData auth : AUTH_TOKENS)
         {
             if (auth.authToken().equals(authToken))
             {
@@ -32,11 +32,11 @@ public class MemoryAuthDAO implements AuthDAO{
 
     @Override
     public void deleteAuth(AuthData auth) {
-        authTokens.remove(auth);
+        AUTH_TOKENS.remove(auth);
     }
 
     @Override
     public void clearAuths() {
-        authTokens.clear();
+        AUTH_TOKENS.clear();
     }
 }

@@ -11,25 +11,25 @@ import java.util.Set;
 
 public class MemoryGameDAO implements GameDAO
 {
-    private static final Set<GameData> games = new HashSet<>();
+    private static final Set<GameData> GAMES = new HashSet<>();
     private int gameIDCounter = 1;
 
     @Override
     public GameData createGame(String gameName) throws DataAccessException {
-        for (GameData game : games) {
+        for (GameData game : GAMES) {
             if (game.gameName().equals(gameName)) {
                 throw new DataAccessException("Error: Game name already taken");
             }
         }
         GameData newGame = new GameData(gameIDCounter, null, null, gameName, new ChessGame());
         gameIDCounter++;
-        games.add(newGame);
+        GAMES.add(newGame);
         return newGame;
     }
 
     @Override
     public GameData getGame(int gameID)  {
-        for (GameData game : games) {
+        for (GameData game : GAMES) {
             if (game.gameID() == gameID) {
                 return game;
             }
@@ -40,7 +40,7 @@ public class MemoryGameDAO implements GameDAO
     @Override
     public Set<GameData> listGames()
     {
-        return games;
+        return GAMES;
     }
 
     @Override
@@ -56,8 +56,8 @@ public class MemoryGameDAO implements GameDAO
                     throw new AlreadyTakenException("Error: White Player already taken");
                 }
                 GameData newGame = new GameData(gameID, username, game.blackUsername(), game.gameName(), game.game());
-                games.remove(game);
-                games.add(newGame);
+                GAMES.remove(game);
+                GAMES.add(newGame);
                 return;
             }
             else if (color.equals("BLACK"))
@@ -67,8 +67,8 @@ public class MemoryGameDAO implements GameDAO
                     throw new AlreadyTakenException("Error: Black Player already taken");
                 }
                 GameData newGame = new GameData(gameID, game.whiteUsername(), username, game.gameName(), game.game());
-                games.remove(game);
-                games.add(newGame);
+                GAMES.remove(game);
+                GAMES.add(newGame);
                 return;
             }
         }
@@ -83,6 +83,6 @@ public class MemoryGameDAO implements GameDAO
     @Override
     public void clearGames()
     {
-        games.clear();
+        GAMES.clear();
     }
 }

@@ -18,32 +18,32 @@ public class TestUserService
 
         // Test Register
         System.out.println("Testing UserService. Begin by registering StormLordZeus");
-        myTester.TestRegister(tester);
+        myTester.testRegister(tester);
         System.out.println("Attempting to re-register StormLordZeus");
-        myTester.TestRegister(tester);
+        myTester.testRegister(tester);
         System.out.println();
 
         // Test Login
         System.out.println("Logging in as StormLordZeus with the correct password");
-        myTester.TestLogin(tester, "StormLordZeus", "I'm really cool");
+        myTester.testLogin(tester, "StormLordZeus", "I'm really cool");
         System.out.println("Logging in as StormLordZeus with an incorrect password");
-        myTester.TestLogin(tester, "StormLordZeus", "I'm not so cool");
+        myTester.testLogin(tester, "StormLordZeus", "I'm not so cool");
         System.out.println("Logging in as an unknown user");
-        myTester.TestLogin(tester, "LameoNotZeus", "I'm really cool");
+        myTester.testLogin(tester, "LameoNotZeus", "I'm really cool");
         System.out.println();
 
         // Test Logout
         System.out.println("Logging StormLordZeus out");
-        myTester.TestLogout(tester);
+        myTester.testLogout(tester);
         System.out.println("Attempting to log StormLordZeus out again");
-        myTester.TestLogout(tester);
+        myTester.testLogout(tester);
         System.out.println();
 
         // Test clear
         System.out.println("Testing clear users");
-        myTester.TestClearUsers(tester);
+        myTester.testClearUsers(tester);
         System.out.println("Proving users have been cleared by attempting to log in as StormLordZeus with correct password");
-        myTester.TestLogin(tester, "StormLordZeus", "I'm really cool");
+        myTester.testLogin(tester, "StormLordZeus", "I'm really cool");
         System.out.println();
 
         System.out.println("Testing of UserService complete");
@@ -54,7 +54,7 @@ public class TestUserService
 
     }
 
-    public void TestRegister(UserService tester)
+    public void testRegister(UserService tester)
     {
         try
         {
@@ -70,7 +70,7 @@ public class TestUserService
         }
     }
 
-    public void TestLogin(UserService tester, String username, String password)  {
+    public void testLogin(UserService tester, String username, String password)  {
         try
         {
             LoginRequest requestTest = new LoginRequest(username, password);
@@ -84,7 +84,7 @@ public class TestUserService
         }
     }
 
-    public void TestLogout(UserService tester)  {
+    public void testLogout(UserService tester)  {
         try
         {
             LogoutRequest requestTest = new LogoutRequest(mAuthToken);
@@ -97,7 +97,7 @@ public class TestUserService
         }
     }
 
-    public void TestClearUsers(UserService tester)  {
+    public void testClearUsers(UserService tester)  {
         tester.clearUsers();
         System.out.println("Successfully cleared all users");
     }
