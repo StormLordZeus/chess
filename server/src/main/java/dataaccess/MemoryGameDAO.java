@@ -28,7 +28,7 @@ public class MemoryGameDAO implements GameDAO
     }
 
     @Override
-    public GameData getGame(int gameID) throws DataAccessException {
+    public GameData getGame(int gameID)  {
         for (GameData game : games) {
             if (game.gameID() == gameID) {
                 return game;

@@ -1,7 +1,6 @@
 package dataaccess;
 
 import model.UserData;
-import org.eclipse.jetty.http.BadMessageException;
 
 import java.util.HashSet;
 import java.util.Set;
