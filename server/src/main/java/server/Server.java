@@ -1,16 +1,12 @@
 package server;
 
 import com.google.gson.Gson;
-import dataaccess.AlreadyTakenException;
-import dataaccess.DataAccessException;
-import dataaccess.InvalidCredentialsException;
+import dataaccess.*;
 import io.javalin.*;
 import io.javalin.http.Context;
 import io.javalin.http.UnauthorizedResponse;
-import model.LoginRequest;
-import model.LoginResult;
-import model.LogoutRequest;
-import model.RegisterRequest;
+import model.*;
+import service.GameService;
 import service.UserService;
 
 import java.util.Map;
@@ -18,12 +14,19 @@ import java.util.Map;
 
 public class Server {
 
-    private static final Gson mSerializer  = new Gson();
+    private static final Gson mSerializer = new Gson();
     private final Javalin mJavalin;
-    private static final UserService mService = new UserService();
-    private static String mAuthToken;
+    private static UserService mUserService;
+    private static GameService mGameService;
+
 
     public Server() {
+        MemoryUserDAO userData = new MemoryUserDAO();
+        MemoryAuthDAO authData = new MemoryAuthDAO();
+        MemoryGameDAO gameData = new MemoryGameDAO();
+
+        mUserService = new UserService(userData, authData);
+        mGameService = new GameService(gameData, authData);
         mJavalin = Javalin.create(config -> config.staticFiles.add("web"));
 
         // Register your endpoints and exception handlers here.
@@ -50,21 +53,25 @@ public class Server {
         mJavalin.stop();
     }
 
+    private static void displayErrorMessage(Exception e, int errorCode, Context ctx)
+    {
+        String errorJson = mSerializer.toJson(Map.of("message", e.getMessage()));
+        ctx.status(errorCode).result(errorJson).contentType("application/json");
+    }
+
     private static void handleRegister(Context ctx)
     {
         try {
             RegisterRequest request = mSerializer.fromJson(ctx.body(), RegisterRequest.class);
-            String resultJson = new Gson().toJson(mService.register(request));
+            String resultJson = new Gson().toJson(mUserService.register(request));
             ctx.status(200).result(resultJson).contentType("application/json");
         }
         catch (AlreadyTakenException e) {
-            String errorJson = mSerializer.toJson(Map.of("message", e.getMessage()));
-            ctx.status(403).result(errorJson).contentType("application/json");
+            displayErrorMessage(e, 403, ctx);
         }
 
         catch (DataAccessException e) {
-            String errorJson = mSerializer.toJson(Map.of("message", e.getMessage()));
-            ctx.status(500).result(errorJson).contentType("application/json");
+            displayErrorMessage(e, 500, ctx);
         }
     }
 
@@ -72,19 +79,15 @@ public class Server {
     {
         try {
             LoginRequest request = mSerializer.fromJson(ctx.body(), LoginRequest.class);
-            LoginResult result = mService.login(request);
-            mAuthToken = result.authToken();
-            String resultJson = new Gson().toJson(result);
+            String resultJson = new Gson().toJson(mUserService.login(request));
             ctx.status(200).result(resultJson).contentType("application/json");
         }
         catch (InvalidCredentialsException e) {
-            String errorJson = mSerializer.toJson(Map.of("message", e.getMessage()));
-            ctx.status(403).result(errorJson).contentType("application/json");
+            displayErrorMessage(e, 403, ctx);
         }
 
         catch (DataAccessException e) {
-            String errorJson = mSerializer.toJson(Map.of("message", e.getMessage()));
-            ctx.status(500).result(errorJson).contentType("application/json");
+            displayErrorMessage(e, 500, ctx);
         }
     }
 
@@ -92,24 +95,33 @@ public class Server {
     {
         try {
             LogoutRequest request = new LogoutRequest(ctx.header("authorization"));
-            mService.logout(request);
+            mUserService.logout(request);
             ctx.status(200);
         }
         catch (UnauthorizedResponse e) {
-            String errorJson = mSerializer.toJson(Map.of("message", e.getMessage()));
-            ctx.status(401).result(errorJson).contentType("application/json");
+            displayErrorMessage(e, 401, ctx);
         }
 
         catch (DataAccessException e) {
-            String errorJson = mSerializer.toJson(Map.of("message", e.getMessage()));
-            ctx.status(500).result(errorJson).contentType("application/json");
+            displayErrorMessage(e, 500, ctx);
         }
 
     }
 
     private static void handleListGames(Context ctx)
     {
+        try {
+            ListGamesRequest request = new ListGamesRequest(ctx.header("authorization"));
+            String resultJson = new Gson().toJson(mGameService.listGames(request));
+            ctx.status(200).result(resultJson).contentType("application/json");
+        }
+        catch (UnauthorizedResponse e) {
+            displayErrorMessage(e, 401, ctx);
+        }
 
+        catch (DataAccessException e) {
+            displayErrorMessage(e, 500, ctx);
+        }
     }
 
     private static void handleCreateGame(Context ctx)

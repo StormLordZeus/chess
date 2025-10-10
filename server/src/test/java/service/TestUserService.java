@@ -1,6 +1,8 @@
 package service;
 
 import dataaccess.DataAccessException;
+import dataaccess.MemoryAuthDAO;
+import dataaccess.MemoryUserDAO;
 import model.*;
 
 public class TestUserService
@@ -8,8 +10,11 @@ public class TestUserService
     private String mAuthToken;
 
     public static void main(String[] args) {
+        MemoryUserDAO userData = new MemoryUserDAO();
+        MemoryAuthDAO authData = new MemoryAuthDAO();
+
         TestUserService myTester = new TestUserService();
-        UserService tester = new UserService();
+        UserService tester = new UserService(userData, authData);
 
         // Test Register
         System.out.println("Testing UserService. Begin by registering StormLordZeus");

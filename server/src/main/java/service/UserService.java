@@ -8,8 +8,14 @@ import java.util.UUID;
 
 public class UserService
 {
-    private static final MemoryUserDAO mUserDataAccess = new MemoryUserDAO();
-    private static final MemoryAuthDAO mAuthDataAccess = new MemoryAuthDAO();
+    private static UserDAO mUserDataAccess;
+    private static AuthDAO mAuthDataAccess;
+
+    public UserService(UserDAO userData, AuthDAO authData)
+    {
+        mUserDataAccess = userData;
+        mAuthDataAccess = authData;
+    }
 
     public RegisterResult register(RegisterRequest request) throws DataAccessException
     {

@@ -1,5 +1,5 @@
 package model;
 
-import java.util.Collection;
+import java.util.Set;
 
-public record ListGamesResult(Collection<GameData> games) {}
+public record ListGamesResult(Set<GameData> games) {}
