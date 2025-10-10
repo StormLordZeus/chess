@@ -47,7 +47,7 @@ public class GameService
         mGameDataAccess.clearGames();
     }
 
-    public AuthData authenticate(String authToken) throws DataAccessException
+    private AuthData authenticate(String authToken) throws DataAccessException
     {
         AuthData auth = mAuthDataAccess.getAuth(authToken);
         if (auth == null)
