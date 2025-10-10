@@ -37,7 +37,7 @@ public class GameService
         mGameDataAccess.updateGame(request.gameID(), request.playerColor(), auth.username(), null);
     }
 
-    public void clearUsers()
+    public void clearGames()
     {
         mGameDataAccess.clearGames();
     }
