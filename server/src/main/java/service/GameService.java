@@ -1,7 +1,6 @@
 package service;
 
 import chess.InvalidMoveException;
-import dataaccess.AlreadyTakenException;
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
@@ -34,8 +33,13 @@ public class GameService
     public void joinGame(JoinGameRequest request) throws DataAccessException, InvalidMoveException
     {
         AuthData auth = authenticate(request.authToken());
-        GameData game = mGameDataAccess.getGame(request.gameID());
+        mGameDataAccess.getGame(request.gameID());
         mGameDataAccess.updateGame(request.gameID(), request.playerColor(), auth.username(), null);
+    }
+
+    public void clearUsers()
+    {
+        mGameDataAccess.clearGames();
     }
 
     public AuthData authenticate(String authToken) throws DataAccessException

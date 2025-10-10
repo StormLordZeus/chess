@@ -175,7 +175,8 @@ public class Server {
 
     private static void handleClear(Context ctx)
     {
-
+        mUserService.clearUsers();
+        mGameService.clearGames();
     }
 
     private static <T> T getBodyObject(Context ctx, Class<T> clazz) {
