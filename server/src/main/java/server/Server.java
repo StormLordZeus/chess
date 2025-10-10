@@ -126,6 +126,25 @@ public class Server {
 
     private static void handleCreateGame(Context ctx)
     {
+        try {
+            String authToken = ctx.header("authorization");
+            CreateGameRequest bodyRequest = mSerializer.fromJson(ctx.body(), CreateGameRequest.class);
+            CreateGameRequest request = new CreateGameRequest(bodyRequest.gameName(), authToken);
+            String resultJson = new Gson().toJson(mGameService.createGame(request));
+            ctx.status(200).result(resultJson).contentType("application/json");
+        }
+        catch (UnauthorizedResponse e)
+        {
+            displayErrorMessage(e, 401, ctx);
+        }
+        catch (AlreadyTakenException e)
+        {
+            displayErrorMessage(e, 403, ctx);
+        }
+        catch (DataAccessException e)
+        {
+            displayErrorMessage(e, 500, ctx);
+        }
 
     }
 
