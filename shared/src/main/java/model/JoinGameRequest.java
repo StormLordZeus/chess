@@ -2,4 +2,4 @@ package model;
 
 import chess.ChessGame;
 
-public record JoinGameRequest(int gameID, ChessGame.TeamColor color, String authToken) {}
+public record JoinGameRequest(int gameID, String playerColor, String authToken) {}

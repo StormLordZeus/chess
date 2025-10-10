@@ -1,5 +1,6 @@
 package server;
 
+import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataaccess.*;
 import io.javalin.*;
@@ -150,6 +151,25 @@ public class Server {
 
     private static void handleJoinGame(Context ctx)
     {
+        try {
+            String authToken = ctx.header("authorization");
+            JoinGameRequest bodyRequest = mSerializer.fromJson(ctx.body(), JoinGameRequest.class);
+            JoinGameRequest request = new JoinGameRequest(bodyRequest.gameID(), bodyRequest.playerColor(), authToken);
+            mGameService.joinGame(request);
+            ctx.status(200);
+        }
+        catch (UnauthorizedResponse e)
+        {
+            displayErrorMessage(e, 401, ctx);
+        }
+        catch (AlreadyTakenException e)
+        {
+            displayErrorMessage(e, 403, ctx);
+        }
+        catch (DataAccessException | InvalidMoveException e)
+        {
+            displayErrorMessage(e, 500, ctx);
+        }
 
     }
 

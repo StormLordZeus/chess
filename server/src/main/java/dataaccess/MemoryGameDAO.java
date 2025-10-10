@@ -33,7 +33,7 @@ public class MemoryGameDAO implements GameDAO
                 return game;
             }
         }
-        throw new DataAccessException("Game name already taken");
+        throw new DataAccessException("Game does not exist");
     }
 
     @Override
@@ -46,11 +46,11 @@ public class MemoryGameDAO implements GameDAO
     }
 
     @Override
-    public GameData updateGame(int gameID, ChessGame.TeamColor color, String username, ChessMove move) throws DataAccessException, InvalidMoveException {
+    public GameData updateGame(int gameID, String color, String username, ChessMove move) throws DataAccessException, InvalidMoveException {
         GameData game = getGame(gameID);
         if (color != null && username != null)
         {
-            if (color == ChessGame.TeamColor.WHITE)
+            if (color.equals("WHITE"))
             {
                 if (game.whiteUsername() != null)
                 {
@@ -61,7 +61,7 @@ public class MemoryGameDAO implements GameDAO
                 games.add(newGame);
                 return newGame;
             }
-            else if (color == ChessGame.TeamColor.BLACK)
+            else if (color.equals("BLACK"))
             {
                 if (game.blackUsername() != null)
                 {
