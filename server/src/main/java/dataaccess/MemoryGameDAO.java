@@ -59,6 +59,7 @@ public class MemoryGameDAO implements GameDAO
                 GameData newGame = new GameData(gameID, username, game.blackUsername(), game.gameName(), game.game());
                 games.remove(game);
                 games.add(newGame);
+                return;
             }
             else if (color.equals("BLACK"))
             {
@@ -69,11 +70,13 @@ public class MemoryGameDAO implements GameDAO
                 GameData newGame = new GameData(gameID, game.whiteUsername(), username, game.gameName(), game.game());
                 games.remove(game);
                 games.add(newGame);
+                return;
             }
         }
         else if (move != null)
         {
             game.game().makeMove(move);
+            return;
         }
         throw new DataAccessException("No player or move specified to update");
     }
