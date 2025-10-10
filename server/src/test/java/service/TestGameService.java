@@ -104,7 +104,6 @@ public class TestGameService
     public void testJoinGame(GameService tester, int gameID, String color)  {
         try
         {
-            //System.out.println(gameID + " " + color + " " + mAuthToken);
             JoinGameRequest requestTest = new JoinGameRequest(gameID,color,mAuthToken);
             tester.joinGame(requestTest);
             System.out.println("Successfully joined the game with ID " + gameID + " as " + color);

@@ -1,62 +1,81 @@
 package service;
 
-import dataaccess.AlreadyTakenException;
-import dataaccess.DataAccessException;
-import dataaccess.MemoryAuthDAO;
-import dataaccess.MemoryUserDAO;
-import model.RegisterRequest;
-import model.RegisterResult;
-import org.junit.jupiter.api.Test;
+import dataaccess.*;
+import io.javalin.http.UnauthorizedResponse;
+import model.*;
+import org.junit.jupiter.api.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class UserServiceTest {
 
+    MemoryUserDAO userData = new MemoryUserDAO();
+    MemoryAuthDAO authData = new MemoryAuthDAO();
+    String mAuthToken;
+    UserService mTester;
+
     @Test
+    @Order (1)
     void registerSuccess() throws DataAccessException
     {
-        MemoryUserDAO userData = new MemoryUserDAO();
-        MemoryAuthDAO authData = new MemoryAuthDAO();
-        UserService tester = new UserService(userData, authData);
-
+        mTester = new UserService(userData, authData);
         RegisterRequest requestTest = new RegisterRequest(
                 "StormLordZeus", "I'm really cool", "myEmailIsBetterThanYours@ImAwesome.com");
-        RegisterResult result = tester.register(requestTest);
+        RegisterResult result = mTester.register(requestTest);
         assertEquals("StormLordZeus", result.username());
     }
 
     @Test
+    @Order (2)
     void registerFailure()
     {
-        MemoryUserDAO userData = new MemoryUserDAO();
-        MemoryAuthDAO authData = new MemoryAuthDAO();
-        UserService tester = new UserService(userData, authData);
-
         RegisterRequest requestTest = new RegisterRequest(
                 "StormLordZeus", "I'm really cool", "myEmailIsBetterThanYours@ImAwesome.com");
-        assertThrows(AlreadyTakenException.class, () -> tester.register(requestTest));
+        assertThrows(AlreadyTakenException.class, () -> mTester.register(requestTest));
     }
 
     @Test
-    void loginSuccess()
+    @Order (3)
+    void loginSuccess() throws DataAccessException
     {
-
+        LoginRequest requestTest = new LoginRequest("StormLordZeus", "I'm really cool");
+        LoginResult result = mTester.login(requestTest);
+        mAuthToken = result.authToken();
+        assertEquals("StormLordZeus", result.username());
     }
 
     @Test
-    void loginFailure() {
+    @Order (4)
+    void loginFailure()
+    {
+        LoginRequest requestTest = new LoginRequest("StormLordZeus", "I'm not so cool");
+        assertThrows(InvalidCredentialsException.class, () -> mTester.login(requestTest));
     }
 
     @Test
-    void logoutSuccess() {
+    @Order (5)
+    void logoutSuccess() throws DataAccessException
+    {
+        LogoutRequest requestTest = new LogoutRequest(mAuthToken);
+        mTester.logout(requestTest);
+        assertTrue(true);
     }
 
     @Test
-    void logoutFailure() {
+    @Order (6)
+    void logoutFailure()
+    {
+        LogoutRequest requestTest = new LogoutRequest(mAuthToken);
+        assertThrows(UnauthorizedResponse.class, () -> mTester.logout(requestTest));
     }
 
     @Test
-    void clearUsersSuccess() {
+    @Order (7)
+    void clearUsersSuccess()
+    {
+        mTester.clearUsers();
+        assertTrue(true);
     }
 }

@@ -18,7 +18,7 @@ public class MemoryGameDAO implements GameDAO
     public GameData createGame(String gameName) throws DataAccessException {
         for (GameData game : GAMES) {
             if (game.gameName().equals(gameName)) {
-                throw new DataAccessException("Error: Game name already taken");
+                throw new AlreadyTakenException("Error: Game name already taken");
             }
         }
         GameData newGame = new GameData(gameIDCounter, null, null, gameName, new ChessGame());

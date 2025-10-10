@@ -1,34 +1,86 @@
 package service;
 
-import org.junit.jupiter.api.Test;
+import chess.InvalidMoveException;
+import dataaccess.*;
+import io.javalin.http.UnauthorizedResponse;
+import model.*;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.*;
 
+import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class GameServiceTest {
+    MemoryGameDAO gameData = new MemoryGameDAO();
+    MemoryAuthDAO authData = new MemoryAuthDAO();
+    String mAuthToken;
+    GameService mTester;
 
     @Test
-    void listGamesSuccess() {
+    @Order (6)
+    void listGamesSuccess() throws DataAccessException
+    {
+        ListGamesRequest requestTest = new ListGamesRequest(mAuthToken);
+        ListGamesResult result = mTester.listGames(requestTest);
+        Set<GameData> games = result.games();
+        GameData first = games.iterator().next();
+        assertEquals(1, first.gameID());
+        assertEquals("Storm", first.whiteUsername());
     }
 
     @Test
-    void listGamesFailure() {
+    @Order (1)
+    void listGamesFailure()
+    {
+        mTester = new GameService(gameData, authData);
+        ListGamesRequest requestTest = new ListGamesRequest(mAuthToken);
+        assertThrows(UnauthorizedResponse.class, () -> mTester.listGames(requestTest));
     }
 
     @Test
-    void createGameSuccess() {
+    @Order (2)
+    void createGameSuccess() throws DataAccessException
+    {
+        RegisterResult result = new UserService(new MemoryUserDAO(), authData).register(
+                new RegisterRequest("Storm", "1", "no"));
+        mAuthToken = result.authToken();
+        CreateGameRequest requestTest = new CreateGameRequest("FirstGame", mAuthToken);
+        CreateGameResult result2 = mTester.createGame(requestTest);
+        assertEquals(1, result2.gameID());
     }
 
     @Test
-    void createGameFailure() {
+    @Order (3)
+    void createGameFailure()
+    {
+        CreateGameRequest requestTest = new CreateGameRequest("FirstGame", mAuthToken);
+        assertThrows(AlreadyTakenException.class, () -> mTester.createGame(requestTest));
     }
 
     @Test
-    void joinGameSuccess() {
+    @Order (4)
+    void joinGameSuccess() throws DataAccessException, InvalidMoveException
+    {
+        JoinGameRequest requestTest = new JoinGameRequest(1,"WHITE",mAuthToken);
+        mTester.joinGame(requestTest);
+        assertTrue(true);
     }
 
     @Test
-    void joinGameFailure() {
+    @Order (5)
+    void joinGameFailure()
+    {
+        JoinGameRequest requestTest = new JoinGameRequest(1,"WHITE",mAuthToken);
+        assertThrows(AlreadyTakenException.class, () -> mTester.joinGame(requestTest));
     }
 
     @Test
-    void clearGamesSuccess() {
+    @Order(7)
+    void clearGamesSuccess()
+    {
+        mTester.clearGames();
     }
 }
