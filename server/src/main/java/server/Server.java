@@ -91,7 +91,7 @@ public class Server {
     private static void handleLogout(Context ctx)
     {
         try {
-            LogoutRequest request = mSerializer.fromJson(ctx.header("authorization"), LogoutRequest.class);
+            LogoutRequest request = new LogoutRequest(ctx.header("authorization"));
             mService.logout(request);
             ctx.status(200);
         }
