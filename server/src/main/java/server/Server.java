@@ -194,6 +194,6 @@ public class Server {
     {
         mUserService.clearUsers();
         mGameService.clearGames();
-
+        ctx.status(200);
     }
 }

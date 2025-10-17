@@ -13,12 +13,9 @@ public class MemoryUserDAO implements UserDAO{
     {
         if (USERS.contains(user))
         {
-            throw new DataAccessException("Error: User already taken");
+            throw new AlreadyTakenException("Error: User already taken");
         }
-        else
-        {
-            USERS.add(user);
-        }
+        USERS.add(user);
     }
 
     @Override

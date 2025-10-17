@@ -1,7 +1,6 @@
 package service;
 
 import dataaccess.*;
-import io.javalin.http.UnauthorizedResponse;
 import model.*;
 import org.eclipse.jetty.http.BadMessageException;
 
@@ -31,10 +30,6 @@ public class UserService
         if (request.email() == null)
         {
             throw new BadMessageException("Error: No email Sent");
-        }
-        if (mUserDataAccess.getUser(request.username()) != null)
-        {
-            throw new AlreadyTakenException("Error: Username already taken");
         }
         mUserDataAccess.createUser(new UserData(request.username(), request.password(), request.email()));
 
@@ -70,10 +65,6 @@ public class UserService
     public void logout(LogoutRequest request) throws DataAccessException
     {
         AuthData auth = mAuthDataAccess.getAuth(request.authToken());
-        if (auth == null)
-        {
-            throw new UnauthorizedResponse("Error: Auth token not found");
-        }
         mAuthDataAccess.deleteAuth(auth);
     }
 
