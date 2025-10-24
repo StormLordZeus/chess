@@ -3,7 +3,8 @@ package dataaccess;
 import java.sql.*;
 import java.util.Properties;
 
-public class DatabaseManager {
+public class DatabaseManager
+{
     private static String databaseName;
     private static String dbUsername;
     private static String dbPassword;
@@ -12,19 +13,59 @@ public class DatabaseManager {
     /*
      * Load the database information for the db.properties file.
      */
-    static {
+    static
+    {
         loadPropertiesFromResources();
     }
+
+    private static final String[] createStatements = {
+            """
+            CREATE TABLE IF NOT EXISTS AuthData (
+            authToken varchar(255) NOT NULL,
+            username varchar(255) NOT NULL,
+            PRIMARY KEY (authToken)
+            );
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS UserData (
+            username varchar(255) NOT NULL,
+            password varchar(255) NOT NULL,
+            email varchar(255) NOT NULL,
+            PRIMARY KEY (username)
+            );
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS GameData (
+            gameID INT NOT NULL AUTO_INCREMENT,
+            whiteUsername varchar(255),
+            blackUsername varchar(255),
+            gameName varchar(255) NOT NULL,
+            game longtext NOT NULL,
+            PRIMARY KEY (gameID)
+            );
+            """
+    };
 
     /**
      * Creates the database if it does not already exist.
      */
-    static public void createDatabase() throws DataAccessException {
+    static public void createDatabase() throws DataAccessException
+    {
         var statement = "CREATE DATABASE IF NOT EXISTS " + databaseName;
         try (var conn = DriverManager.getConnection(connectionUrl, dbUsername, dbPassword);
-             var preparedStatement = conn.prepareStatement(statement)) {
+             var preparedStatement = conn.prepareStatement(statement))
+        {
             preparedStatement.executeUpdate();
-        } catch (SQLException ex) {
+            for (String createTableStatement : createStatements)
+            {
+                try (var preparedTableStatement = conn.prepareStatement(createTableStatement))
+                {
+                    preparedTableStatement.executeUpdate();
+                }
+            }
+        }
+        catch (SQLException ex)
+        {
             throw new DataAccessException("failed to create database", ex);
         }
     }
@@ -41,31 +82,40 @@ public class DatabaseManager {
      * }
      * </code>
      */
-    static Connection getConnection() throws DataAccessException {
-        try {
+    static Connection getConnection() throws DataAccessException
+    {
+        try
+        {
             //do not wrap the following line with a try-with-resources
             var conn = DriverManager.getConnection(connectionUrl, dbUsername, dbPassword);
             conn.setCatalog(databaseName);
             return conn;
-        } catch (SQLException ex) {
+        }
+        catch (SQLException ex)
+        {
             throw new DataAccessException("failed to get connection", ex);
         }
     }
 
-    private static void loadPropertiesFromResources() {
+    private static void loadPropertiesFromResources()
+    {
         try (var propStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("db.properties")) {
-            if (propStream == null) {
+            if (propStream == null)
+            {
                 throw new Exception("Unable to load db.properties");
             }
             Properties props = new Properties();
             props.load(propStream);
             loadProperties(props);
-        } catch (Exception ex) {
+        }
+        catch (Exception ex)
+        {
             throw new RuntimeException("unable to process db.properties", ex);
         }
     }
 
-    private static void loadProperties(Properties props) {
+    private static void loadProperties(Properties props)
+    {
         databaseName = props.getProperty("db.name");
         dbUsername = props.getProperty("db.user");
         dbPassword = props.getProperty("db.password");
