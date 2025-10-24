@@ -13,7 +13,7 @@ public class MemoryAuthDAO implements AuthDAO{
     public void createAuth(AuthData auth) throws DataAccessException {
         if (AUTH_TOKENS.contains(auth))
         {
-            throw new DataAccessException("Error: Auth Token already exists");
+            throw new AlreadyTakenException("Error: Auth Token already exists");
         }
         AUTH_TOKENS.add(auth);
     }

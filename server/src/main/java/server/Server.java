@@ -65,7 +65,7 @@ public class Server {
     {
         try {
             RegisterRequest request = SERIALIZER.fromJson(ctx.body(), RegisterRequest.class);
-            String resultJson = new Gson().toJson(mUserService.register(request));
+            String resultJson = SERIALIZER.toJson(mUserService.register(request));
             ctx.status(200).result(resultJson).contentType("application/json");
         }
         catch (AlreadyTakenException e) {
@@ -84,7 +84,7 @@ public class Server {
     {
         try {
             LoginRequest request = SERIALIZER.fromJson(ctx.body(), LoginRequest.class);
-            String resultJson = new Gson().toJson(mUserService.login(request));
+            String resultJson = SERIALIZER.toJson(mUserService.login(request));
             ctx.status(200).result(resultJson).contentType("application/json");
         }
         catch (InvalidCredentialsException e) {
@@ -121,7 +121,7 @@ public class Server {
     {
         try {
             ListGamesRequest request = new ListGamesRequest(ctx.header("authorization"));
-            String resultJson = new Gson().toJson(mGameService.listGames(request));
+            String resultJson = SERIALIZER.toJson(mGameService.listGames(request));
             ctx.status(200).result(resultJson).contentType("application/json");
         }
         catch (UnauthorizedResponse e)
@@ -140,7 +140,7 @@ public class Server {
             String authToken = ctx.header("authorization");
             CreateGameRequest bodyRequest = SERIALIZER.fromJson(ctx.body(), CreateGameRequest.class);
             CreateGameRequest request = new CreateGameRequest(bodyRequest.gameName(), authToken);
-            String resultJson = new Gson().toJson(mGameService.createGame(request));
+            String resultJson = SERIALIZER.toJson(mGameService.createGame(request));
             ctx.status(200).result(resultJson).contentType("application/json");
         }
         catch (UnauthorizedResponse e)

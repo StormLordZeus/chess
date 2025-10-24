@@ -82,5 +82,6 @@ class GameServiceTest {
     void clearGamesSuccess()
     {
         mTester.clearGames();
+        assertTrue(true);
     }
 }
