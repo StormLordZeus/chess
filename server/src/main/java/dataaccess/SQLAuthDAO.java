@@ -30,7 +30,7 @@ public class SQLAuthDAO implements AuthDAO
     {
         try (Connection conn = DatabaseManager.getConnection())
         {
-            String sql = "SELECT username FROM AuthData WHERE authToken = ?";
+            String sql = "SELECT * FROM AuthData WHERE authToken = ?";
             try(PreparedStatement ps = conn.prepareStatement(sql))
             {
                 ps.setString(1,authToken);
@@ -74,11 +74,11 @@ public class SQLAuthDAO implements AuthDAO
         }
     }
 
-    private int executeUpdate(String statement, Object... params) throws DataAccessException
+    private void executeUpdate(String statement, Object... params) throws DataAccessException
     {
         try (Connection conn = DatabaseManager.getConnection())
         {
-            try (PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS))
+            try (PreparedStatement ps = conn.prepareStatement(statement))
             {
                 for (int i = 0; i < params.length; i++)
                 {
@@ -93,13 +93,6 @@ public class SQLAuthDAO implements AuthDAO
                     }
                 }
                 ps.executeUpdate();
-
-                ResultSet rs = ps.getGeneratedKeys();
-                if (rs.next())
-                {
-                    return rs.getInt(1);
-                }
-                return 0;
             }
         }
         catch (SQLException e)
