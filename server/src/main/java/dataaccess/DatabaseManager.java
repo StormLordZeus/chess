@@ -16,6 +16,11 @@ public class DatabaseManager
     static
     {
         loadPropertiesFromResources();
+        try {
+            createDatabase();
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Failed to create the database with error " + e.getMessage());
+        }
     }
 
     private static final String[] createStatements = {
