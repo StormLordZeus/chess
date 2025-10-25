@@ -21,7 +21,7 @@ public class DatabaseManager
         loadPropertiesFromResources();
     }
 
-    private static final String[] createStatements = {
+    private static final String[] CREATE_STATEMENTS = {
             """
             CREATE TABLE IF NOT EXISTS AuthData (
             authToken varchar(255) NOT NULL,
@@ -66,7 +66,7 @@ public class DatabaseManager
         }
         try (var conn = DatabaseManager.getConnection())
         {
-            for (String createTableStatement : createStatements)
+            for (String createTableStatement : CREATE_STATEMENTS)
             {
                 try (var preparedTableStatement = conn.prepareStatement(createTableStatement))
                 {
