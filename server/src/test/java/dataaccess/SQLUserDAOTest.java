@@ -1,7 +1,6 @@
 package dataaccess;
 
 import model.UserData;
-import org.eclipse.jetty.http.BadMessageException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -37,17 +36,16 @@ class SQLUserDAOTest {
             }
             assertThrows(AlreadyTakenException.class, () -> mUserDataAccess.createUser(mUser));
         } catch (DataAccessException e)
-        {}
+        {
+            assertTrue(true);
+        }
     }
 
     @Test
     void getUserSuccess() throws DataAccessException
     {
-        try
-        {
-            mUserDataAccess.createUser(mUser);
-        } catch (DataAccessException e)
-        {}
+        mUserDataAccess.clearUsers();
+        mUserDataAccess.createUser(mUser);
         assertNotNull(mUserDataAccess.getUser("Me"));
     }
 
@@ -60,11 +58,8 @@ class SQLUserDAOTest {
     @Test
     void clearUsersSuccess() throws DataAccessException
     {
-        try
-        {
-            mUserDataAccess.createUser(mUser);
-        } catch (DataAccessException e)
-        {}
+        mUserDataAccess.clearUsers();
+        mUserDataAccess.createUser(mUser);
         mUserDataAccess.clearUsers();
         assertNull(mUserDataAccess.getUser("Hello?"));
     }

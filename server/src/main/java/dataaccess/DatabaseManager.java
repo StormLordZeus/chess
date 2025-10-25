@@ -62,7 +62,7 @@ public class DatabaseManager
         }
         catch (SQLException ex)
         {
-            throw new DataAccessException("failed to create database", ex);
+            throw new DataAccessException("Error: Failed to create database", ex);
         }
         try (var conn = DatabaseManager.getConnection())
         {
@@ -76,7 +76,7 @@ public class DatabaseManager
         }
         catch (SQLException ex)
         {
-            throw new DataAccessException("failed to create database tables", ex);
+            throw new DataAccessException("Error: Failed to create database tables", ex);
         }
     }
 
@@ -103,7 +103,7 @@ public class DatabaseManager
         }
         catch (SQLException ex)
         {
-            throw new DataAccessException("failed to get connection", ex);
+            throw new DataAccessException("Error: failed to get connection", ex);
         }
     }
 
@@ -112,7 +112,7 @@ public class DatabaseManager
         try (var propStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("db.properties")) {
             if (propStream == null)
             {
-                throw new Exception("Unable to load db.properties");
+                throw new Exception("Error: Unable to load db.properties");
             }
             Properties props = new Properties();
             props.load(propStream);
@@ -120,7 +120,7 @@ public class DatabaseManager
         }
         catch (Exception ex)
         {
-            throw new RuntimeException("unable to process db.properties", ex);
+            throw new RuntimeException("Error: unable to process db.properties", ex);
         }
     }
 
@@ -148,6 +148,10 @@ public class DatabaseManager
                     {
                         ps.setString(i + 1, p);
                     }
+                    if (param instanceof Integer p)
+                    {
+                        ps.setInt(i + 1, p);
+                    }
                     else if (param == null)
                     {
                         ps.setNull(i + 1, NULL);
@@ -165,7 +169,7 @@ public class DatabaseManager
         }
         catch (SQLException e)
         {
-            throw new DataAccessException(String.format("unable to update database: %s, %s", statement, e.getMessage()));
+            throw new DataAccessException(String.format("Error: Unable to update database: %s, %s", statement, e.getMessage()));
         }
     }
 }

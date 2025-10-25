@@ -39,12 +39,8 @@ class SQLAuthDAOTest {
     @Test
     void getAuthSuccess() throws DataAccessException
     {
-        try
-        {
-            mAuthDataAccess.createAuth(mAuthData);
-        }
-        catch (DataAccessException e)
-        {}
+        mAuthDataAccess.clearAuths();
+        mAuthDataAccess.createAuth(mAuthData);
         AuthData data = mAuthDataAccess.getAuth(mAuthData.authToken());
         assertEquals(mAuthData.authToken(), data.authToken());
         assertEquals(mAuthData.username(), data.username());
@@ -58,39 +54,25 @@ class SQLAuthDAOTest {
     @Test
     void deleteAuthSuccess() throws DataAccessException
     {
-        try
-        {
-            mAuthDataAccess.createAuth(mAuthData);
-        }
-        catch (DataAccessException e)
-        {}
+        mAuthDataAccess.clearAuths();
+        mAuthDataAccess.createAuth(mAuthData);
         mAuthDataAccess.deleteAuth(mAuthData);
         assertThrows(UnauthorizedResponse.class, () -> mAuthDataAccess.getAuth(mAuthData.authToken()));
     }
     @Test
-    void deleteAuthFailure()
+    void deleteAuthFailure() throws DataAccessException
     {
-        try
-        {
-            mAuthDataAccess.getAuth(mAuthData.authToken());
-            mAuthDataAccess.deleteAuth(mAuthData);
-            assertThrows(UnauthorizedResponse.class, () -> mAuthDataAccess.deleteAuth(mAuthData));
-        }
-        catch (DataAccessException e)
-        {
-            assertThrows(UnauthorizedResponse.class, () -> mAuthDataAccess.deleteAuth(mAuthData));
-        }
+        mAuthDataAccess.clearAuths();
+
+        assertThrows(UnauthorizedResponse.class, () -> mAuthDataAccess.deleteAuth(mAuthData));
+
     }
 
     @Test
-    void clearAuthsSuccess()
+    void clearAuthsSuccess() throws DataAccessException
     {
-        try
-        {
-            mAuthDataAccess.createAuth(mAuthData);
-        }
-        catch (DataAccessException e)
-        {}
+        mAuthDataAccess.clearAuths();
+        mAuthDataAccess.createAuth(mAuthData);
         mAuthDataAccess.clearAuths();
         assertThrows(UnauthorizedResponse.class, () -> mAuthDataAccess.getAuth(mAuthData.authToken()));
 

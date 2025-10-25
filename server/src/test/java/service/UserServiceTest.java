@@ -73,7 +73,7 @@ class UserServiceTest {
 
     @Test
     @Order (7)
-    void clearUsersSuccess()
+    void clearUsersSuccess() throws DataAccessException
     {
         mTester.clearUsers();
         assertTrue(true);

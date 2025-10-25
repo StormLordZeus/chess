@@ -68,7 +68,7 @@ public class UserService
         mAuthDataAccess.deleteAuth(auth);
     }
 
-    public void clearUsers()
+    public void clearUsers() throws DataAccessException
     {
         mUserDataAccess.clearUsers();
         mAuthDataAccess.clearAuths();

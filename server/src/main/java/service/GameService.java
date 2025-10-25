@@ -42,7 +42,7 @@ public class GameService
         mGameDataAccess.updateGame(request.gameID(), request.playerColor(), auth.username(), null);
     }
 
-    public void clearGames()
+    public void clearGames() throws DataAccessException
     {
         mGameDataAccess.clearGames();
     }

@@ -7,8 +7,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import static java.sql.Types.NULL;
-
 public class SQLUserDAO implements UserDAO
 {
     @Override
@@ -53,7 +51,7 @@ public class SQLUserDAO implements UserDAO
     }
 
     @Override
-    public void clearUsers()
+    public void clearUsers() throws DataAccessException
     {
         try {
             String sql = "TRUNCATE UserData";
@@ -61,7 +59,7 @@ public class SQLUserDAO implements UserDAO
         }
         catch (DataAccessException e)
         {
-            throw new RuntimeException("Couldn't connect to the database when clearing");
+            throw new DataAccessException("Error: Couldn't connect to the database when clearing");
         }
     }
 }

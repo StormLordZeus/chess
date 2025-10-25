@@ -14,15 +14,16 @@ import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 
-import static java.sql.Statement.RETURN_GENERATED_KEYS;
-import static java.sql.Types.NULL;
-
 public class SQLGameDAO implements GameDAO
 {
     private int numGames = 0;
     @Override
     public GameData createGame(String gameName) throws DataAccessException
     {
+        if (gameName == null)
+        {
+            throw new BadMessageException("No game name given");
+        }
         try (Connection conn = DatabaseManager.getConnection())
         {
             String sql = "SELECT * FROM GameData WHERE gameName = ?";
@@ -100,31 +101,43 @@ public class SQLGameDAO implements GameDAO
     @Override
     public void updateGame(int gameID, String color, String username, ChessMove move) throws DataAccessException, InvalidMoveException
     {
+        GameData game = getGame(gameID);
         if (color != null && username != null)
         {
             if (color.equals("WHITE"))
             {
+                if (game.whiteUsername() != null)
+                {
+                    throw new AlreadyTakenException("Error: White Player already taken");
+                }
                 String sql = "UPDATE GameData SET whiteUsername = ? WHERE gameID = ?";
                 DatabaseManager.executeUpdate(sql, username, gameID);
+                return;
             }
             else if (color.equals("BLACK"))
             {
+                if (game.blackUsername() != null)
+                {
+                    throw new AlreadyTakenException("Error: Black Player already taken");
+                }
                 String sql = "UPDATE GameData SET blackUsername = ? WHERE gameID = ?";
                 DatabaseManager.executeUpdate(sql, username, gameID);
+                return;
             }
+            System.out.println("I made it past both ifs");
         }
         else if (move != null)
         {
-            GameData game = getGame(gameID);
             game.game().makeMove(move);
             String sql = "UPDATE GameData SET game = ? WHERE gameID = ?";
             DatabaseManager.executeUpdate(sql, new Gson().toJson(game) ,gameID);
+            return;
         }
         throw new BadMessageException("Error: No player or move specified to update");
     }
 
     @Override
-    public void clearGames()
+    public void clearGames() throws DataAccessException
     {
         try {
             String sql = "TRUNCATE GameData";
@@ -133,7 +146,7 @@ public class SQLGameDAO implements GameDAO
         }
         catch (DataAccessException e)
         {
-            throw new RuntimeException("Couldn't connect to the database when clearing");
+            throw new DataAccessException("Error: Couldn't connect to the database when clearing");
         }
     }
 }

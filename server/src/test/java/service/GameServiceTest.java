@@ -79,7 +79,7 @@ class GameServiceTest {
 
     @Test
     @Order(7)
-    void clearGamesSuccess()
+    void clearGamesSuccess() throws DataAccessException
     {
         mTester.clearGames();
         assertTrue(true);

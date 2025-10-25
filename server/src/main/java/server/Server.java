@@ -202,8 +202,14 @@ public class Server {
 
     private static void handleClear(Context ctx)
     {
-        mUserService.clearUsers();
-        mGameService.clearGames();
-        ctx.status(200);
+        try {
+            mUserService.clearUsers();
+            mGameService.clearGames();
+            ctx.status(200);
+        }
+        catch (DataAccessException e)
+        {
+            displayErrorMessage(e, 500, ctx);
+        }
     }
 }

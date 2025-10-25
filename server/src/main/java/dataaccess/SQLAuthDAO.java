@@ -9,8 +9,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import static java.sql.Types.NULL;
-
 
 public class SQLAuthDAO implements AuthDAO
 {
@@ -73,7 +71,7 @@ public class SQLAuthDAO implements AuthDAO
     }
 
     @Override
-    public void clearAuths()
+    public void clearAuths() throws DataAccessException
     {
         try {
             String sql = "TRUNCATE AuthData";
@@ -81,7 +79,7 @@ public class SQLAuthDAO implements AuthDAO
         }
         catch (DataAccessException e)
         {
-            throw new RuntimeException("Couldn't connect to the database when clearing");
+            throw new DataAccessException("Error: Couldn't connect to the database when clearing");
         }
     }
 }
