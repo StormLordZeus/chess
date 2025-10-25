@@ -16,11 +16,6 @@ public class DatabaseManager
     static
     {
         loadPropertiesFromResources();
-        try {
-            createDatabase();
-        } catch (DataAccessException e) {
-            throw new RuntimeException("Failed to create the database with error " + e.getMessage());
-        }
     }
 
     private static final String[] createStatements = {
@@ -61,6 +56,13 @@ public class DatabaseManager
              var preparedStatement = conn.prepareStatement(statement))
         {
             preparedStatement.executeUpdate();
+        }
+        catch (SQLException ex)
+        {
+            throw new DataAccessException("failed to create database", ex);
+        }
+        try (var conn = DatabaseManager.getConnection())
+        {
             for (String createTableStatement : createStatements)
             {
                 try (var preparedTableStatement = conn.prepareStatement(createTableStatement))
@@ -71,7 +73,7 @@ public class DatabaseManager
         }
         catch (SQLException ex)
         {
-            throw new DataAccessException("failed to create database", ex);
+            throw new DataAccessException("failed to create database tables", ex);
         }
     }
 

@@ -5,7 +5,6 @@ import chess.ChessMove;
 import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import model.GameData;
-import model.UserData;
 import org.eclipse.jetty.http.BadMessageException;
 
 import java.sql.Connection;

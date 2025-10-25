@@ -23,9 +23,19 @@ public class Server {
 
 
     public Server() {
-        MemoryUserDAO userData = new MemoryUserDAO();
-        MemoryAuthDAO authData = new MemoryAuthDAO();
-        MemoryGameDAO gameData = new MemoryGameDAO();
+//        MemoryUserDAO userData = new MemoryUserDAO();
+//        MemoryAuthDAO authData = new MemoryAuthDAO();
+//        MemoryGameDAO gameData = new MemoryGameDAO();
+        SQLUserDAO userData = new SQLUserDAO();
+        SQLAuthDAO authData = new SQLAuthDAO();
+        SQLGameDAO gameData = new SQLGameDAO();
+        try {
+            DatabaseManager.createDatabase();
+        }
+        catch (DataAccessException e)
+        {
+            System.out.println("The error creating the database was " + e.getMessage());
+        }
 
         mUserService = new UserService(userData, authData);
         mGameService = new GameService(gameData, authData);
