@@ -14,8 +14,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class GameServiceTest {
-    MemoryGameDAO gameData = new MemoryGameDAO();
-    MemoryAuthDAO authData = new MemoryAuthDAO();
+    SQLGameDAO gameData = new SQLGameDAO();
+    SQLAuthDAO authData = new SQLAuthDAO();
     String mAuthToken;
     GameService mTester;
 
@@ -44,6 +44,7 @@ class GameServiceTest {
     @Order (2)
     void createGameSuccess() throws DataAccessException
     {
+        mTester.clearGames();
         RegisterResult result = new UserService(new MemoryUserDAO(), authData).register(
                 new RegisterRequest("Storm", "1", "no"));
         mAuthToken = result.authToken();

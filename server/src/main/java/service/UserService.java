@@ -3,6 +3,7 @@ package service;
 import dataaccess.*;
 import model.*;
 import org.eclipse.jetty.http.BadMessageException;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.UUID;
 
@@ -53,7 +54,7 @@ public class UserService
         {
             throw new InvalidCredentialsException("Error: Invalid Credentials");
         }
-        if (!request.password().equals(user.password()))
+        if (!BCrypt.checkpw(request.password(), user.password()))
         {
             throw new InvalidCredentialsException("Error: Invalid Credentials");
         }

@@ -1,8 +1,6 @@
 package dataaccess;
 
 import chess.ChessGame;
-import chess.ChessMove;
-import chess.ChessPosition;
 import chess.InvalidMoveException;
 import model.GameData;
 import org.eclipse.jetty.http.BadMessageException;
@@ -10,7 +8,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.Set;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 

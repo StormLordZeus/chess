@@ -11,8 +11,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class UserServiceTest {
 
-    MemoryUserDAO userData = new MemoryUserDAO();
-    MemoryAuthDAO authData = new MemoryAuthDAO();
+    SQLUserDAO userData = new SQLUserDAO();
+    SQLAuthDAO authData = new SQLAuthDAO();
     String mAuthToken;
     UserService mTester;
 

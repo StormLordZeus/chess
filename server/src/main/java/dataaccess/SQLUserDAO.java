@@ -1,6 +1,7 @@
 package dataaccess;
 
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -17,7 +18,8 @@ public class SQLUserDAO implements UserDAO
             throw new AlreadyTakenException("Error: User already taken");
         }
         String sql = "INSERT INTO UserData (username, password, email) Values (?, ?, ?)";
-        DatabaseManager.executeUpdate(sql, user.username(), user.password(), user.email());
+        DatabaseManager.executeUpdate(sql, user.username(),
+                BCrypt.hashpw(user.password(), BCrypt.gensalt()), user.email());
     }
 
     @Override
