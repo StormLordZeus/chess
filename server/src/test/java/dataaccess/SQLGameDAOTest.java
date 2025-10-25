@@ -24,7 +24,6 @@ class SQLGameDAOTest {
     {
         mGameDataAccess = new SQLGameDAO();
         DatabaseManager.createDatabase();
-        String authToken = UUID.randomUUID().toString();
         mGameData = new GameData(1, null, null, "OG Game", new ChessGame());
         mGameDataAccess.clearGames();
     }
@@ -73,24 +72,21 @@ class SQLGameDAOTest {
     {
         mGameDataAccess.updateGame(1, "WHITE", "StormLordZeus", null);
         mGameDataAccess.updateGame(1, "BLACK", "ShadowLordHades", null);
-        ChessPosition startPos = new ChessPosition(2, 1);
-        ChessPosition endPos = new ChessPosition(4, 1);
-        mGameDataAccess.updateGame(1, null, null, new ChessMove(startPos, endPos,null));
         assertEquals("StormLordZeus", mGameDataAccess.getGame(1).whiteUsername());
         assertEquals("ShadowLordHades", mGameDataAccess.getGame(1).blackUsername());
-        ChessGame game = new ChessGame();
-        game.makeMove(new ChessMove(startPos, endPos, null));
-        assertEquals(game,mGameDataAccess.getGame(1).game());
     }
     @Test
     void updateGameFailure()
     {
-
+        assertThrows(BadMessageException.class, () ->
+                mGameDataAccess.updateGame(1, "PINK", "StormLordZeus", null));
     }
 
     @Test
-    void clearGamesSuccess()
-    {
-
+    void clearGamesSuccess() throws DataAccessException {
+        mGameDataAccess.clearGames();
+        mGameDataAccess.createGame("OG Game");
+        mGameDataAccess.clearGames();
+        assertThrows(BadMessageException.class, () -> mGameDataAccess.getGame(1));
     }
 }

@@ -16,7 +16,6 @@ import java.util.Set;
 
 public class SQLGameDAO implements GameDAO
 {
-    private int numGames = 0;
     @Override
     public GameData createGame(String gameName) throws DataAccessException
     {
@@ -40,7 +39,6 @@ public class SQLGameDAO implements GameDAO
                     {
                         sql = "INSERT INTO GameData (whiteUsername, blackUsername, gameName, game) Values (?, ?, ?, ?)";
                         int id = DatabaseManager.executeUpdate(sql, null, null, gameName, new Gson().toJson(new ChessGame()));
-                        numGames++;
                         return new GameData(id, null, null, gameName, new ChessGame());
                     }
                 }
@@ -90,6 +88,23 @@ public class SQLGameDAO implements GameDAO
     @Override
     public Set<GameData> listGames() throws DataAccessException
     {
+        int numGames = 0;
+        try (Connection conn = DatabaseManager.getConnection())
+        {
+            String sql = "SELECT COUNT(*) AS total FROM GameData;";
+            try(PreparedStatement ps = conn.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery())
+            {
+                if (rs.next())
+                {
+                    numGames = rs.getInt("total");
+                }
+            }
+        }
+        catch (SQLException e)
+        {
+            throw new DataAccessException("Error: Failed to connect to the database");
+        }
         final Set<GameData> games = new HashSet<>();
         for (int i = 0; i < numGames; i++)
         {
@@ -142,7 +157,6 @@ public class SQLGameDAO implements GameDAO
         try {
             String sql = "TRUNCATE GameData";
             DatabaseManager.executeUpdate(sql);
-            numGames = 0;
         }
         catch (DataAccessException e)
         {
