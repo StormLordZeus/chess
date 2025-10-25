@@ -38,7 +38,7 @@ public class SQLGameDAO implements GameDAO
                     else
                     {
                         sql = "INSERT INTO GameData (whiteUsername, blackUsername, gameName, game) Values (?, ?, ?, ?)";
-                        int id = executeUpdate(sql, null, null, gameName, new Gson().toJson(new ChessGame()));
+                        int id = DatabaseManager.executeUpdate(sql, null, null, gameName, new Gson().toJson(new ChessGame()));
                         numGames++;
                         return new GameData(id, null, null, gameName, new ChessGame());
                     }
@@ -105,12 +105,12 @@ public class SQLGameDAO implements GameDAO
             if (color.equals("WHITE"))
             {
                 String sql = "UPDATE GameData SET whiteUsername = ? WHERE gameID = ?";
-                executeUpdate(sql, username, gameID);
+                DatabaseManager.executeUpdate(sql, username, gameID);
             }
             else if (color.equals("BLACK"))
             {
                 String sql = "UPDATE GameData SET blackUsername = ? WHERE gameID = ?";
-                executeUpdate(sql, username, gameID);
+                DatabaseManager.executeUpdate(sql, username, gameID);
             }
         }
         else if (move != null)
@@ -118,7 +118,7 @@ public class SQLGameDAO implements GameDAO
             GameData game = getGame(gameID);
             game.game().makeMove(move);
             String sql = "UPDATE GameData SET game = ? WHERE gameID = ?";
-            executeUpdate(sql, new Gson().toJson(game) ,gameID);
+            DatabaseManager.executeUpdate(sql, new Gson().toJson(game) ,gameID);
         }
         throw new BadMessageException("Error: No player or move specified to update");
     }
@@ -128,46 +128,12 @@ public class SQLGameDAO implements GameDAO
     {
         try {
             String sql = "TRUNCATE GameData";
-            executeUpdate(sql);
+            DatabaseManager.executeUpdate(sql);
             numGames = 0;
         }
         catch (DataAccessException e)
         {
             throw new RuntimeException("Couldn't connect to the database when clearing");
-        }
-    }
-
-    private int executeUpdate(String statement, Object... params) throws DataAccessException
-    {
-        try (Connection conn = DatabaseManager.getConnection())
-        {
-            try (PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS))
-            {
-                for (int i = 0; i < params.length; i++)
-                {
-                    Object param = params[i];
-                    if (param instanceof String p)
-                    {
-                        ps.setString(i + 1, p);
-                    }
-                    else if (param == null)
-                    {
-                        ps.setNull(i + 1, NULL);
-                    }
-                }
-                ps.executeUpdate();
-
-                ResultSet rs = ps.getGeneratedKeys();
-                if (rs.next()) {
-                    return rs.getInt(1);
-                }
-
-                return 0;
-            }
-        }
-        catch (SQLException e)
-        {
-            throw new DataAccessException(String.format("unable to update database: %s, %s", statement, e.getMessage()));
         }
     }
 }

@@ -19,7 +19,7 @@ public class SQLUserDAO implements UserDAO
             throw new AlreadyTakenException("Error: User already taken");
         }
         String sql = "INSERT INTO UserData (username, password, email) Values (?, ?, ?)";
-        executeUpdate(sql, user.username(), user.password(), user.email());
+        DatabaseManager.executeUpdate(sql, user.username(), user.password(), user.email());
     }
 
     @Override
@@ -27,7 +27,7 @@ public class SQLUserDAO implements UserDAO
     {
         try (Connection conn = DatabaseManager.getConnection())
         {
-            String sql = "SELECT * FROM AuthData WHERE username = ?";
+            String sql = "SELECT * FROM UserData WHERE username = ?";
             try(PreparedStatement ps = conn.prepareStatement(sql))
             {
                 ps.setString(1,username);
@@ -57,38 +57,11 @@ public class SQLUserDAO implements UserDAO
     {
         try {
             String sql = "TRUNCATE UserData";
-            executeUpdate(sql);
+            DatabaseManager.executeUpdate(sql);
         }
         catch (DataAccessException e)
         {
             throw new RuntimeException("Couldn't connect to the database when clearing");
-        }
-    }
-
-    private void executeUpdate(String statement, Object... params) throws DataAccessException
-    {
-        try (Connection conn = DatabaseManager.getConnection())
-        {
-            try (PreparedStatement ps = conn.prepareStatement(statement))
-            {
-                for (int i = 0; i < params.length; i++)
-                {
-                    Object param = params[i];
-                    if (param instanceof String p)
-                    {
-                        ps.setString(i + 1, p);
-                    }
-                    else if (param == null)
-                    {
-                        ps.setNull(i + 1, NULL);
-                    }
-                }
-                ps.executeUpdate();
-            }
-        }
-        catch (SQLException e)
-        {
-            throw new DataAccessException(String.format("unable to update database: %s, %s", statement, e.getMessage()));
         }
     }
 }
