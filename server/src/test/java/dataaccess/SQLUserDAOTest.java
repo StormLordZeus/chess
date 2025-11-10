@@ -30,10 +30,8 @@ class SQLUserDAOTest {
     {
         try
         {
-            if (mUserDataAccess.getUser("Me") == null)
-            {
-                mUserDataAccess.createUser(mUser);
-            }
+            mUserDataAccess.clearUsers();
+            mUserDataAccess.createUser(mUser);
             assertThrows(AlreadyTakenException.class, () -> mUserDataAccess.createUser(mUser));
         } catch (DataAccessException e)
         {

@@ -64,6 +64,8 @@ public class DatabaseManager
         {
             throw new DataAccessException("Error: Failed to create database", ex);
         }
+
+        // Create tables
         try (var conn = DatabaseManager.getConnection())
         {
             for (String createTableStatement : CREATE_STATEMENTS)

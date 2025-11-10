@@ -21,7 +21,7 @@ public class SQLGameDAO implements GameDAO
     {
         if (gameName == null)
         {
-            throw new BadMessageException("No game name given");
+            throw new BadMessageException("Error: No game name given");
         }
         try (Connection conn = DatabaseManager.getConnection())
         {
@@ -35,12 +35,9 @@ public class SQLGameDAO implements GameDAO
                     {
                         throw new AlreadyTakenException("Error: Game name already taken");
                     }
-                    else
-                    {
-                        sql = "INSERT INTO GameData (whiteUsername, blackUsername, gameName, game) Values (?, ?, ?, ?)";
-                        int id = DatabaseManager.executeUpdate(sql, null, null, gameName, new Gson().toJson(new ChessGame()));
-                        return new GameData(id, null, null, gameName, new ChessGame());
-                    }
+                    sql = "INSERT INTO GameData (whiteUsername, blackUsername, gameName, game) Values (?, ?, ?, ?)";
+                    int id = DatabaseManager.executeUpdate(sql, null, null, gameName, new Gson().toJson(new ChessGame()));
+                    return new GameData(id, null, null, gameName, new ChessGame());
                 }
 
             }
@@ -76,7 +73,6 @@ public class SQLGameDAO implements GameDAO
                         throw new BadMessageException("Error: Game does not exist");
                     }
                 }
-
             }
         }
         catch (SQLException e)
@@ -105,6 +101,7 @@ public class SQLGameDAO implements GameDAO
         {
             throw new DataAccessException("Error: Failed to connect to the database");
         }
+
         final Set<GameData> games = new HashSet<>();
         for (int i = 0; i < numGames; i++)
         {
@@ -154,13 +151,7 @@ public class SQLGameDAO implements GameDAO
     @Override
     public void clearGames() throws DataAccessException
     {
-        try {
-            String sql = "TRUNCATE GameData";
-            DatabaseManager.executeUpdate(sql);
-        }
-        catch (DataAccessException e)
-        {
-            throw new DataAccessException("Error: Couldn't connect to the database when clearing");
-        }
+        String sql = "TRUNCATE GameData";
+        DatabaseManager.executeUpdate(sql);
     }
 }

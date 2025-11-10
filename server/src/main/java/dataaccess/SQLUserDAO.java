@@ -55,13 +55,7 @@ public class SQLUserDAO implements UserDAO
     @Override
     public void clearUsers() throws DataAccessException
     {
-        try {
-            String sql = "TRUNCATE UserData";
-            DatabaseManager.executeUpdate(sql);
-        }
-        catch (DataAccessException e)
-        {
-            throw new DataAccessException("Error: Couldn't connect to the database when clearing");
-        }
+        String sql = "TRUNCATE UserData";
+        DatabaseManager.executeUpdate(sql);
     }
 }
