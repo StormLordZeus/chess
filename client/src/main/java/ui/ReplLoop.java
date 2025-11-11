@@ -1,7 +1,5 @@
 package ui;
 
-import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -11,6 +9,8 @@ public class ReplLoop {
     private final PreLoginClient mPreLogClient;
     private final PostLoginClient mPostLogClient;
     private final GameplayClient mGameClient;
+    private List<String> mPreResult;
+    private List<String> mPostResult;
     Scanner mScanner = new Scanner(System.in);
 
     public ReplLoop (String aUrl)
@@ -31,22 +31,25 @@ public class ReplLoop {
     {
         System.out.println(mPreLogClient.help());
 
-        List<String> preResult = new ArrayList<>();
-        preResult.add("");
-        while (!preResult.getFirst().equals("quit"))
+        mPreResult = new ArrayList<>();
+        mPreResult.add("");
+        while (!mPreResult.getFirst().equals("quit"))
         {
             System.out.print("\n" + RESET_TEXT_COLOR + "[LOGGED_OUT] >>> " + SET_TEXT_COLOR_GREEN );
             String line = mScanner.nextLine();
 
             try
             {
-                preResult = mPreLogClient.evaluate(line);
-                System.out.print(SET_TEXT_COLOR_BLUE + preResult.get(1));
-                if (preResult.getFirst().equals("login") || preResult.getFirst().equals("register"))
+                mPreResult = mPreLogClient.evaluate(line);
+                System.out.print(SET_TEXT_COLOR_BLUE + mPreResult.get(1));
+                if (mPreResult.getFirst().equals("login") || mPreResult.getFirst().equals("register"))
                 {
-                    System.out.println("Auth token is " + preResult.getLast());
-                    postLoginLoop(preResult.getLast());
-                    System.out.println(mPreLogClient.help());
+                    System.out.println("Auth token is " + mPreResult.getLast());
+                    postLoginLoop(mPreResult.getLast());
+                    if (!mPreResult.getFirst().equals("quit")) 
+                    {
+                        System.out.println(mPreLogClient.help());
+                    }
                 }
             }
             catch (Throwable e)
@@ -63,24 +66,34 @@ public class ReplLoop {
         System.out.println(mPostLogClient.help());
         System.out.println("My auth token is " + aAuthToken);
 
-        List<String> postResult = new ArrayList<>();
-        postResult.add("");
-        while (!postResult.getFirst().equals("logout"))
+        mPostResult = new ArrayList<>();
+        mPostResult.add("");
+        while (!mPostResult.getFirst().equals("logout"))
         {
             System.out.print("\n" + RESET_TEXT_COLOR + "[LOGGED_IN] >>> " + SET_TEXT_COLOR_GREEN );
             String line = mScanner.nextLine();
 
             try
             {
-                postResult = mPostLogClient.evaluate(line, aAuthToken);
-                System.out.print(SET_TEXT_COLOR_BLUE + postResult.get(1));
-                String action = postResult.getFirst();
+                mPostResult = mPostLogClient.evaluate(line, aAuthToken);
+                System.out.print(SET_TEXT_COLOR_BLUE + mPostResult.get(1));
+                String action = mPostResult.getFirst();
                 if (action.equals("join") || action.equals("observe"))
                 {
                     System.out.println();
-                    gameplayLoop(postResult.getLast());
-                    System.out.println(mPostLogClient.help());
+                    gameplayLoop(mPostResult.getLast());
+                    if (!mPostResult.getFirst().equals("quit"))
+                    {
+                        System.out.println(mPostLogClient.help());
+                    }
                 }
+                if (mPostResult.getFirst().equals("quit"))
+                {
+                    mPreResult.clear();
+                    mPreResult.add("quit");
+                    break;
+                }
+
             }
             catch (Throwable e)
             {
@@ -97,7 +110,7 @@ public class ReplLoop {
 
         List<String> gameResult = new ArrayList<>();
         gameResult.add("");
-        while (!gameResult.getFirst().equals("quit"))
+        while (!gameResult.getFirst().equals("exit"))
         {
             DrawBoard.drawChessBoard(aColor);
             System.out.print("\n" + RESET_TEXT_COLOR + "[GAMEPLAY] >>> " + SET_TEXT_COLOR_GREEN );
@@ -107,6 +120,14 @@ public class ReplLoop {
             {
                 gameResult = mGameClient.evaluate(line);
                 System.out.print(SET_TEXT_COLOR_BLUE + gameResult.get(1));
+                if (gameResult.getFirst().equals("quit"))
+                {
+                    mPreResult.clear();
+                    mPreResult.add("quit");
+                    mPostResult.clear();
+                    mPostResult.add("quit");
+                    break;
+                }
             }
             catch (Throwable e)
             {
