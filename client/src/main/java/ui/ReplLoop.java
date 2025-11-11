@@ -45,6 +45,7 @@ public class ReplLoop {
                 {
                     System.out.println("Auth token is " + preResult.getLast());
                     postLoginLoop(preResult.getLast());
+                    System.out.println(mPreLogClient.help());
                 }
             }
             catch (Throwable e)
@@ -73,10 +74,11 @@ public class ReplLoop {
                 postResult = mPostLogClient.evaluate(line, aAuthToken);
                 System.out.print(SET_TEXT_COLOR_BLUE + postResult.get(1));
                 String action = postResult.getFirst();
-                if (action.equals("join") || action.equals("observe"))
+                if (action.equals("join") || action.equals("observe") || action.equals("logout"))
                 {
                     System.out.println();
                     gameplayLoop();
+                    System.out.println(mPostLogClient.help());
                 }
             }
             catch (Throwable e)

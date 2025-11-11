@@ -37,10 +37,10 @@ public class PostLoginClient
     {
         try
         {
-            String[] tokens = aInput.toLowerCase().split(" ");
+            String[] tokens = aInput.split(" ");
             String action = (tokens.length > 0) ? tokens[0] : "help";
             String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
-            switch (action) {
+            switch (action.toLowerCase()) {
                 case "1", "create" ->
                 {
                     if (params.length == 1)
@@ -66,8 +66,9 @@ public class PostLoginClient
                     if (params.length == 2)
                     {
                         int gameID = mNumToIDs.get(Integer.parseInt(params[0]));
+                        System.out.println("GameID is " + gameID);
                         mFacade.joinGame(new JoinGameRequest(gameID,
-                                params[1], aAuthtoken));
+                                params[1].toUpperCase(), aAuthtoken));
                         return new ArrayList<>(List.of(
                                 "join",
                                 "Joining game...",
