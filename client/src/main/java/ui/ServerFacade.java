@@ -6,7 +6,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublisher;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
-import Exception.ResponseException;
+import exception.ResponseException;
 
 import com.google.gson.Gson;
 import model.*;

@@ -3,7 +3,7 @@ package ui;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import Exception.ResponseException;
+import exception.ResponseException;
 import model.*;
 
 import static ui.EscapeSequences.RESET_TEXT_COLOR;
@@ -47,6 +47,13 @@ public class PreLoginClient
                                 result.authToken()));
                     }
                 }
+                case "3", "quit" ->
+                {
+                    if (params.length == 0)
+                    {
+                        return new ArrayList<>(List.of("quit", "Exiting chess"));
+                    }
+                }
                 case "2", "login" ->
                 {
                     if (params.length == 2)
@@ -57,13 +64,6 @@ public class PreLoginClient
                                 "login",
                                 String.format("Logged in as %s",result.username()),
                                 result.authToken()));
-                    }
-                }
-                case "3", "quit" ->
-                {
-                    if (params.length == 0)
-                    {
-                        return new ArrayList<>(List.of("quit", "Exiting chess"));
                     }
                 }
                 default ->

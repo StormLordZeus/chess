@@ -1,4 +1,4 @@
-package Exception;
+package exception;
 
 import com.google.gson.Gson;
 
@@ -33,10 +33,6 @@ public class ResponseException extends Exception {
         return new ResponseException(status, message);
     }
 
-    public Code code() {
-        return code;
-    }
-
     public static Code fromHttpStatusCode(int httpStatusCode) {
         return switch (httpStatusCode) {
             case 500 -> Code.ServerError;
@@ -57,17 +53,6 @@ public class ResponseException extends Exception {
             case 403 -> "Error: " + httpStatusCode + " Already Taken";
             case 404 -> "Error: " + httpStatusCode + " Object not found";
             default -> throw new IllegalArgumentException("Unknown HTTP status code: " + httpStatusCode);
-        };
-    }
-
-
-    public int toHttpStatusCode() {
-        return switch (code) {
-            case ServerError -> 500;
-            case ClientError -> 400;
-            case UnauthorizedError -> 401;
-            case AlreadyTakenError -> 403;
-            case NotFoundError -> 404;
         };
     }
 }

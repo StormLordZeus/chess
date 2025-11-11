@@ -1,11 +1,8 @@
 package ui;
 
-import model.*;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import Exception.ResponseException;
 
 import static ui.EscapeSequences.RESET_TEXT_COLOR;
 import static ui.EscapeSequences.SET_TEXT_COLOR_BLUE;

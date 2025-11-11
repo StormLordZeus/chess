@@ -4,7 +4,7 @@ import model.*;
 
 import java.util.*;
 
-import Exception.ResponseException;
+import exception.ResponseException;
 
 import static ui.EscapeSequences.*;
 

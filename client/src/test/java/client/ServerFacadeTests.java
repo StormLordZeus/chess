@@ -4,7 +4,7 @@ import model.*;
 import org.junit.jupiter.api.*;
 import server.Server;
 import ui.ServerFacade;
-import Exception.ResponseException;
+import exception.ResponseException;
 
 import java.util.Set;
 
