@@ -10,14 +10,12 @@ import static ui.EscapeSequences.*;
 
 public class PostLoginClient
 {
-    private String mServerUrl;
     private final ServerFacade mFacade;
-    private Map<Integer, Integer> mNumToIDs;
+    private final Map<Integer, Integer> mNumToIDs;
 
-    public PostLoginClient(String aUrl, ServerFacade aFacade)
+    public PostLoginClient(ServerFacade aFacade)
     {
         mNumToIDs = new HashMap<>();
-        mServerUrl = aUrl;
         mFacade = aFacade;
     }
 

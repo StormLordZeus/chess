@@ -9,15 +9,14 @@ public class ReplLoop {
     private final PreLoginClient mPreLogClient;
     private final PostLoginClient mPostLogClient;
     private final GameplayClient mGameClient;
-    private final ServerFacade mFacade;
     Scanner mScanner = new Scanner(System.in);
 
     public ReplLoop (String aUrl)
     {
-        mFacade = new ServerFacade(aUrl);
-        mPreLogClient = new PreLoginClient(aUrl, mFacade);
-        mPostLogClient = new PostLoginClient(aUrl, mFacade);
-        mGameClient = new GameplayClient(aUrl, mFacade);
+        ServerFacade facade = new ServerFacade(aUrl);
+        mPreLogClient = new PreLoginClient(facade);
+        mPostLogClient = new PostLoginClient(facade);
+        mGameClient = new GameplayClient(facade);
     }
 
     public void run()

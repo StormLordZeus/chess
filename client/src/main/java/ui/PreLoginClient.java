@@ -11,12 +11,10 @@ import static ui.EscapeSequences.SET_TEXT_COLOR_BLUE;
 
 public class PreLoginClient
 {
-    private String mServerUrl;
     private final ServerFacade mFacade;
 
-    public PreLoginClient(String aUrl, ServerFacade aFacade)
+    public PreLoginClient(ServerFacade aFacade)
     {
-        mServerUrl = aUrl;
         mFacade = aFacade;
     }
 

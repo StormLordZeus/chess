@@ -12,12 +12,10 @@ import static ui.EscapeSequences.SET_TEXT_COLOR_BLUE;
 
 public class GameplayClient
 {
-    private String mServerUrl;
     private final ServerFacade mFacade;
 
-    public GameplayClient(String aUrl, ServerFacade aFacade)
+    public GameplayClient(ServerFacade aFacade)
     {
-        mServerUrl = aUrl;
         mFacade = aFacade;
     }
 
@@ -31,10 +29,10 @@ public class GameplayClient
     public List<String> evaluate(String aInput)
     {
 
-        String[] tokens = aInput.toLowerCase().split(" ");
+        String[] tokens = aInput.split(" ");
         String action = (tokens.length > 0) ? tokens[0] : "help";
         String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
-        switch (action) {
+        switch (action.toLowerCase()) {
             case "1", "quit" ->
             {
                 if (params.length == 0)
