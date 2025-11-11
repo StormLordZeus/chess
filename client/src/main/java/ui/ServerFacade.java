@@ -22,14 +22,14 @@ public class ServerFacade {
 
     public RegisterResult register(RegisterRequest aRequest) throws ResponseException
     {
-        var request = buildRequest("POST", "/user", aRequest);
+        var request = buildRequest("POST", "/user", aRequest, null, null);
         var response = sendRequest(request);
         return handleResponse(response, RegisterResult.class);
     }
 
     public LoginResult login(LoginRequest aRequest) throws ResponseException
     {
-        var request = buildRequest("POST", "/session", aRequest);
+        var request = buildRequest("POST", "/session", aRequest, null, null);
         var response = sendRequest(request);
 
         return handleResponse(response, LoginResult.class);
@@ -37,47 +37,53 @@ public class ServerFacade {
 
     public void logout(LogoutRequest aRequest) throws ResponseException
     {
-        var request = buildRequest("DELETE", "/session", aRequest);
+        var request = buildRequest("DELETE", "/session", null, "authorization", aRequest.authToken());
         var response = sendRequest(request);
         handleResponse(response, null);
     }
 
     public ListGamesResult listGames(ListGamesRequest aRequest) throws ResponseException
     {
-        var request = buildRequest("GET", "/game", aRequest);
+        var request = buildRequest("GET", "/game", null, "authorization", aRequest.authToken());
         var response = sendRequest(request);
         return handleResponse(response, ListGamesResult.class);
     }
 
     public CreateGameResult createGame(CreateGameRequest aRequest) throws ResponseException
     {
-        var request = buildRequest("POST", "/game", aRequest);
+        var request = buildRequest("POST", "/game", aRequest, "authorization", aRequest.authToken());
         var response = sendRequest(request);
         return handleResponse(response, CreateGameResult.class);
     }
 
     public void joinGame(JoinGameRequest aRequest) throws ResponseException
     {
-        var request = buildRequest("PUT", "/game", aRequest);
+        var request = buildRequest("PUT", "/game", aRequest, "authorization", aRequest.authToken());
         var response = sendRequest(request);
         handleResponse(response, null);
     }
 
     public void clear() throws ResponseException
     {
-        var request = buildRequest("DELETE", "/db", null);
+        var request = buildRequest("DELETE", "/db", null, null, null);
         var response = sendRequest(request);
         handleResponse(response, null);
     }
 
-    private HttpRequest buildRequest(String aMethod, String aPath, Object aBody)
+    private HttpRequest buildRequest(String aMethod, String aPath, Object aBody, String aHeaderKey, String aHeaderValue)
     {
         var request = HttpRequest.newBuilder()
                 .uri(URI.create(mServerUrl + aPath))
                 .method(aMethod, makeRequestBody(aBody));
-        if (aBody != null)
+
+        if (aHeaderKey != null && aHeaderValue != null)
         {
-            request.setHeader("Content-Type", "application/json");
+            request.header(aHeaderKey, aHeaderValue);
+        }
+
+        if (aBody != null && (aHeaderKey == null || !aHeaderKey.equalsIgnoreCase("Content-Type")))
+        {
+            request.header("Content-Type", "application/json");
         }
         return request.build();
     }

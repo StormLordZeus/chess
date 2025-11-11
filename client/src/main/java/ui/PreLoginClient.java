@@ -33,10 +33,10 @@ public class PreLoginClient
     {
         try
         {
-            String[] tokens = aInput.toLowerCase().split(" ");
+            String[] tokens = aInput.split(" ");
             String action = (tokens.length > 0) ? tokens[0] : "help";
             String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
-            switch (action) {
+            switch (action.toLowerCase()) {
                 case "1", "register" ->
                 {
                     if (params.length == 3)
