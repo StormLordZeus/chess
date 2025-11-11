@@ -52,7 +52,6 @@ public class PreLoginClient
                 {
                     if (params.length == 2)
                     {
-                        System.out.println("Hello. Params are " + params[0] + " " + params[1]);
                         LoginResult result = mFacade.login(new LoginRequest(params[0], params[1]));
                         return new ArrayList<>(List.of(
                                 "login",
@@ -76,7 +75,7 @@ public class PreLoginClient
         }
         catch (ResponseException e)
         {
-            return new ArrayList<>(List.of(e.getMessage()));
+            return new ArrayList<>(List.of("", e.getMessage()));
         }
     }
 }

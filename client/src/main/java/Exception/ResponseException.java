@@ -10,6 +10,7 @@ public class ResponseException extends Exception {
     public enum Code {
         ServerError,
         ClientError,
+        UnauthorizedError,
     }
 
     final private Code code;
@@ -38,14 +39,27 @@ public class ResponseException extends Exception {
         return switch (httpStatusCode) {
             case 500 -> Code.ServerError;
             case 400 -> Code.ClientError;
+            case 401 -> Code.UnauthorizedError;
             default -> throw new IllegalArgumentException("Unknown HTTP status code: " + httpStatusCode);
         };
     }
+
+    public static String statusMessage(int httpStatusCode)
+    {
+        return switch (httpStatusCode) {
+            case 500 -> "Error: " + httpStatusCode + " Server error";
+            case 400 -> "Error: " + httpStatusCode + " Bad request";
+            case 401 -> "Error: " + httpStatusCode + " Unauthorized Request";
+            default -> throw new IllegalArgumentException("Unknown HTTP status code: " + httpStatusCode);
+        };
+    }
+
 
     public int toHttpStatusCode() {
         return switch (code) {
             case ServerError -> 500;
             case ClientError -> 400;
+            case UnauthorizedError -> 401;
         };
     }
 }

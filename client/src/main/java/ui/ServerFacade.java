@@ -116,8 +116,7 @@ public class ServerFacade {
             var body = aResponse.body();
             if (body != null)
             {
-                System.out.println("The Status Code wasn't 200 body isn't null");
-                throw ResponseException.fromJson(body);
+                throw new ResponseException(ResponseException.fromHttpStatusCode(status), ResponseException.statusMessage(status));
             }
             throw new ResponseException(ResponseException.fromHttpStatusCode(status), "other failure: " + status);
         }
