@@ -54,15 +54,13 @@ public class PreLoginClient
                         return new ArrayList<>(List.of("quit", "Exiting chess"));
                     }
                 }
-                case "2", "login" ->
-                {
-                    if (params.length == 2)
-                    {
+                case "2", "login" -> {
+                    if (params.length == 2) {
                         LoginResult result = mFacade.login(new LoginRequest(params[0], params[1]));
                         System.out.println("Logged in and my auth token is " + result.authToken());
                         return new ArrayList<>(List.of(
                                 "login",
-                                String.format("Logged in as %s",result.username()),
+                                String.format("Logged in as %s", result.username()),
                                 result.authToken()));
                     }
                 }
