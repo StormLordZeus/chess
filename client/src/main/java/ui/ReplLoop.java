@@ -43,7 +43,7 @@ public class ReplLoop {
                 System.out.print(SET_TEXT_COLOR_BLUE + preResult.get(1));
                 if (preResult.getFirst().equals("login") || preResult.getFirst().equals("register"))
                 {
-                    System.out.println();
+                    System.out.println("Auth token is " + preResult.getLast());
                     postLoginLoop(preResult.getLast());
                 }
             }
@@ -59,6 +59,7 @@ public class ReplLoop {
     private void postLoginLoop(String aAuthToken)
     {
         System.out.println(mPostLogClient.help());
+        System.out.println("My auth token is " + aAuthToken);
 
         List<String> postResult = new ArrayList<>();
         postResult.add("");

@@ -42,6 +42,7 @@ public class PreLoginClient
                     if (params.length == 3)
                     {
                         RegisterResult result = mFacade.register(new RegisterRequest(params[0], params[1], params[2]));
+                        System.out.println("Logged in and my auth token is " + result.authToken());
                         return new ArrayList<>(List.of(
                                 "register",
                                 String.format("Registered and logged in as %s",result.username()),
@@ -53,6 +54,7 @@ public class PreLoginClient
                     if (params.length == 2)
                     {
                         LoginResult result = mFacade.login(new LoginRequest(params[0], params[1]));
+                        System.out.println("Logged in and my auth token is " + result.authToken());
                         return new ArrayList<>(List.of(
                                 "login",
                                 String.format("Logged in as %s",result.username()),

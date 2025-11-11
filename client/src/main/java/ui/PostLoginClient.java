@@ -45,7 +45,7 @@ public class PostLoginClient
                 {
                     if (params.length == 1)
                     {
-                        CreateGameResult result = mFacade.createGame(new CreateGameRequest(params[0],aAuthtoken));
+                        mFacade.createGame(new CreateGameRequest(params[0], aAuthtoken));
                         return new ArrayList<>(List.of(
                                 "create",
                                 String.format("Created a game with name: %s",params[0])));
@@ -111,7 +111,7 @@ public class PostLoginClient
         }
         catch (ResponseException e)
         {
-            return new ArrayList<>(List.of(e.getMessage()));
+            return new ArrayList<>(List.of("", e.getMessage()));
         }
     }
 

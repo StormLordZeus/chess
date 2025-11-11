@@ -44,28 +44,28 @@ public class ServerFacade {
 
     public ListGamesResult listGames(ListGamesRequest aRequest) throws ResponseException
     {
-        var request = buildRequest("GET", "/user", aRequest);
+        var request = buildRequest("GET", "/game", aRequest);
         var response = sendRequest(request);
         return handleResponse(response, ListGamesResult.class);
     }
 
     public CreateGameResult createGame(CreateGameRequest aRequest) throws ResponseException
     {
-        var request = buildRequest("POST", "/user", aRequest);
+        var request = buildRequest("POST", "/game", aRequest);
         var response = sendRequest(request);
         return handleResponse(response, CreateGameResult.class);
     }
 
     public void joinGame(JoinGameRequest aRequest) throws ResponseException
     {
-        var request = buildRequest("PUT", "/user", aRequest);
+        var request = buildRequest("PUT", "/game", aRequest);
         var response = sendRequest(request);
         handleResponse(response, null);
     }
 
     public void clear() throws ResponseException
     {
-        var request = buildRequest("DELETE", "/user", null);
+        var request = buildRequest("DELETE", "/db", null);
         var response = sendRequest(request);
         handleResponse(response, null);
     }
@@ -112,13 +112,7 @@ public class ServerFacade {
         var status = aResponse.statusCode();
         if (status != 200)
         {
-
-            var body = aResponse.body();
-            if (body != null)
-            {
-                throw new ResponseException(ResponseException.fromHttpStatusCode(status), ResponseException.statusMessage(status));
-            }
-            throw new ResponseException(ResponseException.fromHttpStatusCode(status), "other failure: " + status);
+            throw new ResponseException(ResponseException.fromHttpStatusCode(status), ResponseException.statusMessage(status));
         }
         if (aResponseClass != null)
         {
