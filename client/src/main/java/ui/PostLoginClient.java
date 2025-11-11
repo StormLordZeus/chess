@@ -64,7 +64,6 @@ public class PostLoginClient
                     if (params.length == 2)
                     {
                         int gameID = mNumToIDs.get(Integer.parseInt(params[0]));
-                        System.out.println("GameID is " + gameID);
                         mFacade.joinGame(new JoinGameRequest(gameID,
                                 params[1].toUpperCase(), aAuthtoken));
                         return new ArrayList<>(List.of(
@@ -123,7 +122,7 @@ public class PostLoginClient
         {
             mNumToIDs.put(gameNum, game.gameID());
             games += String.format("%d: %s\nWhite Player: %s\nBlack Player: %s\nBoard:\n%s\n", gameNum,
-                game.gameName(), game.whiteUsername(), game.blackUsername(), game.game());
+                game.gameName(), game.whiteUsername(), game.blackUsername(), game.game().getBoard().toString());
             gameNum++;
         }
         games += "***********************************\n";

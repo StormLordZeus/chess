@@ -108,7 +108,7 @@ public class ServerFacade {
         }
         catch (Exception e)
         {
-            throw new ResponseException(ResponseException.Code.ServerError, e.getMessage());
+            throw new ResponseException(e.getMessage());
         }
     }
 
@@ -117,7 +117,7 @@ public class ServerFacade {
         var status = aResponse.statusCode();
         if (status != 200)
         {
-            throw new ResponseException(ResponseException.fromHttpStatusCode(status), ResponseException.statusMessage(status));
+            throw new ResponseException(ResponseException.statusMessage(status));
         }
         if (aResponseClass != null)
         {

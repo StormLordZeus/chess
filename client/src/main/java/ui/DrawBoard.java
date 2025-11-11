@@ -22,21 +22,36 @@ public class DrawBoard
         ChessBoard board = game.getBoard();
         if (aColor.equals("WHITE"))
         {
-            for (int y = 1; y < 9; y++) {
+            printHeader(out, aColor);
+
+            for (int y = 8; y > 0; y--) {
+                out.print(y + " ");
                 for (int x = 1; x < 9; x++) {
                     placePiece(out, board, x, y);
+
                 }
+                out.print(RESET_BG_COLOR);
+                out.print(RESET_TEXT_COLOR);
+                out.print(" " + y);
                 out.println("\u001b[0m"); // reset colors at end of line
             }
+
+            printHeader(out, aColor);
         }
         else if (aColor.equals("BLACK"))
         {
-            for (int y = 8; y > 0; y--) {
+            printHeader(out, aColor);
+            for (int y = 1; y < 9; y++) {
+                out.print(y + " ");
                 for (int x = 8; x > 0; x--) {
                     placePiece(out, board, x, y);
                 }
+                out.print(RESET_BG_COLOR);
+                out.print(RESET_TEXT_COLOR);
+                out.print(" " + y);
                 out.println("\u001b[0m"); // reset colors at end of line
             }
+            printHeader(out, aColor);
         }
 
 
@@ -65,7 +80,7 @@ public class DrawBoard
             pieceString = piece.toString();
         }
 
-        if ((aX + aY + 1) % 2 == 0)
+        if ((aX + aY) % 2 == 0)
         {
             aOut.print(SET_BG_COLOR_DARK_GREEN + pieceString);
         }
@@ -74,4 +89,37 @@ public class DrawBoard
             aOut.print(SET_BG_COLOR_LIGHT_GREY + pieceString);
         }
     }
+
+    private static void printHeader(PrintStream aOut, String aColor)
+    {
+        // file letters at the top
+        aOut.print("  "); // left margin
+        int i = 1;
+        if (aColor.equals("WHITE"))
+        {
+            for (char c = 'a'; c <= 'h'; c++)
+            {
+                if ((i % 3) == 2) {
+                    aOut.print(" " + c + " ");
+                } else {
+                    aOut.print(" " + c + "  ");
+                }
+                i++;
+            }
+        }
+        else
+        {
+            for (char c = 'h'; c >= 'a'; c--)
+            {
+                if ((i % 3) == 2) {
+                    aOut.print(" " + c + " ");
+                } else {
+                    aOut.print(" " + c + "  ");
+                }
+                i++;
+            }
+        }
+        aOut.println();
+    }
+
 }

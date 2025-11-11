@@ -89,17 +89,12 @@ public class ChessBoard {
     public String toString() {
         // Builds a chess board just like the tests
         StringBuilder myBoard = new StringBuilder("|");
-        for (int y = 8; y > 0; y--)
-        {
-            for (int x = 1; x < 9; x++)
-            {
-                ChessPiece myPiece = getPiece(new ChessPosition(y,x));
-                if (myPiece == null)
-                {
+        for (int y = 8; y > 0; y--) {
+            for (int x = 1; x < 9; x++) {
+                ChessPiece myPiece = getPiece(new ChessPosition(y, x));
+                if (myPiece == null) {
                     myBoard.append(" ");
-                }
-                else if (myPiece.getTeamColor() == ChessGame.TeamColor.WHITE)
-                {
+                } else if (myPiece.getTeamColor() == ChessGame.TeamColor.WHITE) {
                     switch (myPiece.getPieceType()) {
                         case KING -> myBoard.append("K");
                         case PAWN -> myBoard.append("P");
@@ -108,9 +103,7 @@ public class ChessBoard {
                         case BISHOP -> myBoard.append("B");
                         case KNIGHT -> myBoard.append("N");
                     }
-                }
-                else
-                {
+                } else {
                     switch (myPiece.getPieceType()) {
                         case KING -> myBoard.append("k");
                         case PAWN -> myBoard.append("p");
@@ -123,7 +116,10 @@ public class ChessBoard {
 
                 myBoard.append("|");
             }
-            myBoard.append("\n|");
+            if (y != 1)
+            {
+                myBoard.append("\n|");
+            }
         }
         return myBoard.toString();
     }

@@ -64,7 +64,6 @@ public class ReplLoop {
     private void postLoginLoop(String aAuthToken)
     {
         System.out.println(mPostLogClient.help());
-        System.out.println("My auth token is " + aAuthToken);
 
         mPostResult = new ArrayList<>();
         mPostResult.add("");
