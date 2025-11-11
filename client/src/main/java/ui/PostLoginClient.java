@@ -70,7 +70,7 @@ public class PostLoginClient
                         return new ArrayList<>(List.of(
                                 "join",
                                 "Joining game...",
-                                String.valueOf(gameID)));
+                                params[1].toUpperCase()));
                     }
                 }
                 case "4", "observe" ->
@@ -81,7 +81,7 @@ public class PostLoginClient
                         return new ArrayList<>(List.of(
                                 "observe",
                                 "Observing game...",
-                                String.valueOf(gameID)));
+                                "WHITE"));
                     }
                 }
                 case "5", "logout" ->

@@ -293,5 +293,57 @@ public class ChessPiece {
     public int hashCode() {
         return Objects.hash(mColor, mType);
     }
+
+    @Override
+    public String toString()
+    {
+        String pieceString = "";
+        if (mColor == ChessGame.TeamColor.WHITE) {
+            switch (mType) {
+                case KNIGHT -> {
+                    pieceString = " ♘ ";
+                }
+                case BISHOP -> {
+                    pieceString = " ♗ ";
+                }
+                case QUEEN -> {
+                    pieceString = " ♕ ";
+                }
+                case ROOK -> {
+                    pieceString = " ♖ ";
+                }
+                case KING -> {
+                    pieceString = " ♔ ";
+                }
+                case PAWN -> {
+                    pieceString = " ♙ ";
+                }
+            }
+        }
+        else if (mColor == ChessGame.TeamColor.BLACK) {
+            switch (mType) {
+                case KNIGHT -> {
+                    pieceString = " ♞ ";
+                }
+                case BISHOP -> {
+                    pieceString = " ♝ ";
+                }
+                case QUEEN -> {
+                    pieceString = " ♛ ";
+                }
+                case ROOK -> {
+                    pieceString = " ♜ ";
+                }
+                case KING -> {
+                    pieceString = " ♚ ";
+                }
+                case PAWN -> {
+                    pieceString = " ♟ ";
+                }
+            }
+        }
+        return pieceString;
+    }
+
 }
 

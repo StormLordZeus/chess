@@ -1,5 +1,7 @@
 package ui;
 
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -63,7 +65,7 @@ public class ReplLoop {
 
         List<String> postResult = new ArrayList<>();
         postResult.add("");
-        while (!postResult.getFirst().equals("quit"))
+        while (!postResult.getFirst().equals("logout"))
         {
             System.out.print("\n" + RESET_TEXT_COLOR + "[LOGGED_IN] >>> " + SET_TEXT_COLOR_GREEN );
             String line = mScanner.nextLine();
@@ -73,10 +75,10 @@ public class ReplLoop {
                 postResult = mPostLogClient.evaluate(line, aAuthToken);
                 System.out.print(SET_TEXT_COLOR_BLUE + postResult.get(1));
                 String action = postResult.getFirst();
-                if (action.equals("join") || action.equals("observe") || action.equals("logout"))
+                if (action.equals("join") || action.equals("observe"))
                 {
                     System.out.println();
-                    gameplayLoop();
+                    gameplayLoop(postResult.getLast());
                     System.out.println(mPostLogClient.help());
                 }
             }
@@ -89,7 +91,7 @@ public class ReplLoop {
         System.out.println();
     }
 
-    private void gameplayLoop()
+    private void gameplayLoop(String aColor)
     {
         System.out.println(mGameClient.help());
 
@@ -97,6 +99,7 @@ public class ReplLoop {
         gameResult.add("");
         while (!gameResult.getFirst().equals("quit"))
         {
+            DrawBoard.drawChessBoard(aColor);
             System.out.print("\n" + RESET_TEXT_COLOR + "[GAMEPLAY] >>> " + SET_TEXT_COLOR_GREEN );
             String line = mScanner.nextLine();
 
