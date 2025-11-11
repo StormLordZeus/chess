@@ -27,43 +27,50 @@ public class ServerFacade {
         return handleResponse(response, RegisterResult.class);
     }
 
-    public LoginResult login(LoginRequest aRequest) throws ResponseException {
+    public LoginResult login(LoginRequest aRequest) throws ResponseException
+    {
         var request = buildRequest("POST", "/session", aRequest);
         var response = sendRequest(request);
+
         return handleResponse(response, LoginResult.class);
     }
 
-    public void logout(LogoutRequest aRequest) throws ResponseException {
+    public void logout(LogoutRequest aRequest) throws ResponseException
+    {
         var request = buildRequest("DELETE", "/session", aRequest);
         var response = sendRequest(request);
         handleResponse(response, null);
     }
 
-    public ListGamesResult listGames(ListGamesRequest aRequest) throws ResponseException {
-        var request = buildRequest("POST", "/user", aRequest);
+    public ListGamesResult listGames(ListGamesRequest aRequest) throws ResponseException
+    {
+        var request = buildRequest("GET", "/user", aRequest);
         var response = sendRequest(request);
         return handleResponse(response, ListGamesResult.class);
     }
 
-    public CreateGameResult createGame(CreateGameRequest aRequest) throws ResponseException {
+    public CreateGameResult createGame(CreateGameRequest aRequest) throws ResponseException
+    {
         var request = buildRequest("POST", "/user", aRequest);
         var response = sendRequest(request);
         return handleResponse(response, CreateGameResult.class);
     }
 
-    public void joinGame(JoinGameRequest aRequest) throws ResponseException {
-        var request = buildRequest("POST", "/user", aRequest);
+    public void joinGame(JoinGameRequest aRequest) throws ResponseException
+    {
+        var request = buildRequest("PUT", "/user", aRequest);
         var response = sendRequest(request);
         handleResponse(response, null);
     }
 
-    public void clear() throws ResponseException {
-        var request = buildRequest("POST", "/user", null);
+    public void clear() throws ResponseException
+    {
+        var request = buildRequest("DELETE", "/user", null);
         var response = sendRequest(request);
         handleResponse(response, null);
     }
 
-    private HttpRequest buildRequest(String aPath, String aMethod, Object aBody)
+    private HttpRequest buildRequest(String aMethod, String aPath, Object aBody)
     {
         var request = HttpRequest.newBuilder()
                 .uri(URI.create(mServerUrl + aPath))
@@ -105,14 +112,15 @@ public class ServerFacade {
         var status = aResponse.statusCode();
         if (status != 200)
         {
+
             var body = aResponse.body();
             if (body != null)
             {
+                System.out.println("The Status Code wasn't 200 body isn't null");
                 throw ResponseException.fromJson(body);
             }
             throw new ResponseException(ResponseException.fromHttpStatusCode(status), "other failure: " + status);
         }
-
         if (aResponseClass != null)
         {
             return new Gson().fromJson(aResponse.body(), aResponseClass);

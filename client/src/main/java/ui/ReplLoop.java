@@ -31,9 +31,10 @@ public class ReplLoop {
         System.out.println(mPreLogClient.help());
 
         List<String> preResult = new ArrayList<>();
+        preResult.add("");
         while (!preResult.getFirst().equals("quit"))
         {
-            System.out.print("\n" + RESET_TEXT_COLOR + ">>> " + SET_TEXT_COLOR_GREEN );
+            System.out.print("\n" + RESET_TEXT_COLOR + "[LOGGED_OUT] >>> " + SET_TEXT_COLOR_GREEN );
             String line = mScanner.nextLine();
 
             try
@@ -60,16 +61,18 @@ public class ReplLoop {
         System.out.println(mPostLogClient.help());
 
         List<String> postResult = new ArrayList<>();
+        postResult.add("");
         while (!postResult.getFirst().equals("quit"))
         {
-            System.out.print("\n" + RESET_TEXT_COLOR + ">>> " + SET_TEXT_COLOR_GREEN );
+            System.out.print("\n" + RESET_TEXT_COLOR + "[LOGGED_IN] >>> " + SET_TEXT_COLOR_GREEN );
             String line = mScanner.nextLine();
 
             try
             {
                 postResult = mPostLogClient.evaluate(line, aAuthToken);
-                System.out.print(SET_TEXT_COLOR_BLUE + postResult);
-                if (postResult.getFirst().equals("join") || postResult.getFirst().equals("observe"))
+                System.out.print(SET_TEXT_COLOR_BLUE + postResult.get(1));
+                String action = postResult.getFirst();
+                if (action.equals("join") || action.equals("observe"))
                 {
                     System.out.println();
                     gameplayLoop();
@@ -88,16 +91,17 @@ public class ReplLoop {
     {
         System.out.println(mGameClient.help());
 
-        var gameResult = "";
-        while (!gameResult.equals("quit"))
+        List<String> gameResult = new ArrayList<>();
+        gameResult.add("");
+        while (!gameResult.getFirst().equals("quit"))
         {
-            System.out.print("\n" + RESET_TEXT_COLOR + ">>> " + SET_TEXT_COLOR_GREEN );
+            System.out.print("\n" + RESET_TEXT_COLOR + "[GAMEPLAY] >>> " + SET_TEXT_COLOR_GREEN );
             String line = mScanner.nextLine();
 
             try
             {
                 gameResult = mGameClient.evaluate(line);
-                System.out.print(SET_TEXT_COLOR_BLUE + gameResult);
+                System.out.print(SET_TEXT_COLOR_BLUE + gameResult.get(1));
             }
             catch (Throwable e)
             {

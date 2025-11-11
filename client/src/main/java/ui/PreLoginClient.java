@@ -6,6 +6,9 @@ import java.util.List;
 import Exception.ResponseException;
 import model.*;
 
+import static ui.EscapeSequences.RESET_TEXT_COLOR;
+import static ui.EscapeSequences.SET_TEXT_COLOR_BLUE;
+
 public class PreLoginClient
 {
     private String mServerUrl;
@@ -19,7 +22,11 @@ public class PreLoginClient
 
     public String help()
     {
-        return null;
+        return "Type the number or string of the action you want to select\n" +
+                SET_TEXT_COLOR_BLUE + "1: register <USERNAME> <PASSWORD> <EMAIL>" + RESET_TEXT_COLOR + " - to create an account\n" +
+                SET_TEXT_COLOR_BLUE + "2: login <USERNAME> <PASSWORD>" + RESET_TEXT_COLOR + " - to play chess\n" +
+                SET_TEXT_COLOR_BLUE + "3: quit" + RESET_TEXT_COLOR + " - playing chess\n" +
+                SET_TEXT_COLOR_BLUE + "4: help" + RESET_TEXT_COLOR + " - with possible commands\n";
     }
 
     public List<String> evaluate(String aInput)
@@ -45,6 +52,7 @@ public class PreLoginClient
                 {
                     if (params.length == 2)
                     {
+                        System.out.println("Hello. Params are " + params[0] + " " + params[1]);
                         LoginResult result = mFacade.login(new LoginRequest(params[0], params[1]));
                         return new ArrayList<>(List.of(
                                 "login",
@@ -61,10 +69,10 @@ public class PreLoginClient
                 }
                 default ->
                 {
-                    return new ArrayList<>(List.of("help", ""));
+                    return new ArrayList<>(List.of("help", help()));
                 }
             }
-            return new ArrayList<>(List.of("help", ""));
+            return new ArrayList<>(List.of("help", help()));
         }
         catch (ResponseException e)
         {
