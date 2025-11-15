@@ -1,5 +1,6 @@
 package server;
 
+import chess.ChessGame;
 import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataaccess.AuthDAO;
@@ -13,6 +14,8 @@ import org.eclipse.jetty.websocket.api.Session;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.commands.UserJoinCommand;
+import websocket.messages.CheckMessage;
+import websocket.messages.GameOverMessage;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
@@ -57,9 +60,36 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             case MAKE_MOVE ->
             {
                 MakeMoveCommand moveAction = new Gson().fromJson(ctx.message(), MakeMoveCommand.class);
+                AuthData auth;
+                try
+                {
+                    auth = mAuthData.getAuth(action.getAuthToken());
+                }
+                catch (DataAccessException e)
+                {
+                    return;
+                }
                 try
                 {
                     mGameData.updateGame(moveAction.getGameID(), null,null, moveAction.getMove());
+                    GameData game = mGameData.getGame(moveAction.getGameID());
+                    ChessGame gameBoard = game.game();
+                    if (auth.username().equals(game.whiteUsername()))
+                    {
+                        if (gameBoard.isInCheck(ChessGame.TeamColor.BLACK))
+                        {
+                            sessions.broadcastMessage(null, new CheckMessage(
+                                    ServerMessage.ServerMessageType.NOTIFICATION, game.blackUsername()));
+                        }
+                    }
+                    else
+                    {
+                        if (gameBoard.isInCheck(ChessGame.TeamColor.WHITE))
+                        {
+                            sessions.broadcastMessage(null, new CheckMessage(
+                                    ServerMessage.ServerMessageType.NOTIFICATION, game.whiteUsername()));
+                        }
+                    }
                 }
                 catch (DataAccessException e)
                 {
@@ -101,6 +131,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             case RESIGN ->
             {
                 AuthData auth;
+                String enemy;
                 try
                 {
                     auth = mAuthData.getAuth(action.getAuthToken());
@@ -112,13 +143,17 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 try
                 {
                     GameData game = mGameData.getGame(action.getGameID());
-                    String enemy = auth.username().equals(game.whiteUsername()) ? game.blackUsername() : game.whiteUsername();
+                    enemy = auth.username().equals(game.whiteUsername()) ? game.blackUsername() : game.whiteUsername();
                 }
                 catch (DataAccessException e)
                 {
                     throw new RuntimeException(e);
                 }
-                sessions.broadcastMessage();
+                sessions.broadcastMessage(null, new GameOverMessage(
+                        ServerMessage.ServerMessageType.NOTIFICATION,
+                        GameOverMessage.EndType.RESIGN,
+                        enemy,
+                        auth.username()));
             }
         }
     }

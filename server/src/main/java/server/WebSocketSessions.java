@@ -21,7 +21,7 @@ public class WebSocketSessions
         connections.remove(gameID);
     }
 
-    public void broadcastMessage(Session excludeSession, String message) throws IOException
+    public void broadcastMessage(Session excludeSession, ServerMessage message) throws IOException
     {
         for (Session con : connections.values())
         {
@@ -29,7 +29,7 @@ public class WebSocketSessions
             {
                 if (!con.equals(excludeSession))
                 {
-                    con.getRemote().sendString(message);
+                    con.getRemote().sendString(message.toString());
                 }
             }
         }
