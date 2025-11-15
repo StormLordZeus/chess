@@ -42,7 +42,7 @@ public class Server {
         // Register your endpoints and exception handlers here.
         createHandlers();
 
-        WebSocketHandler handler = new WebSocketHandler();
+        WebSocketHandler handler = new WebSocketHandler(gameData, authData);
         mJavalin.ws("/ws", ws -> {
             ws.onConnect(WsContext::enableAutomaticPings);
             ws.onMessage(handler);

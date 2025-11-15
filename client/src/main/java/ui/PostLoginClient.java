@@ -89,7 +89,8 @@ public class PostLoginClient
                         return new ArrayList<>(List.of(
                                 "join",
                                 "Joining game...",
-                                params[1].toUpperCase()));
+                                params[1].toUpperCase(),
+                                String.valueOf(gameID)));
                     }
                 }
                 case "4", "observe" ->

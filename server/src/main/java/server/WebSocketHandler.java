@@ -1,9 +1,13 @@
 package server;
 
 import com.google.gson.Gson;
+import dataaccess.AuthDAO;
+import dataaccess.DataAccessException;
+import dataaccess.GameDAO;
+import io.javalin.http.UnauthorizedResponse;
 import io.javalin.websocket.*;
+import model.AuthData;
 import org.eclipse.jetty.websocket.api.Session;
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
@@ -13,6 +17,14 @@ import java.io.IOException;
 public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler {
 
     private final WebSocketSessions sessions = new WebSocketSessions();
+    private GameDAO mGameData;
+    private AuthDAO mAuthData;
+
+    public WebSocketHandler(GameDAO aGameData, AuthDAO aAuthData)
+    {
+        mGameData = aGameData;
+        mAuthData = aAuthData;
+    }
 
     @Override
     public void handleConnect(WsConnectContext ctx) {
@@ -27,7 +39,14 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         {
             case CONNECT ->
             {
+                try {
+                    AuthData auth = mAuthData.getAuth(action.getAuthToken());
+                }
+                catch (DataAccessException e) {
+
+                }
                 sessions.addSessionToGame(action.getGameID(), ctx.session);
+                sessions.broadcastMessage(ctx.session, "");
             }
             case MAKE_MOVE ->
             {
@@ -35,7 +54,15 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             }
             case LEAVE ->
             {
+                try
+                {
+                    mAuthData.getAuth(action.getAuthToken());
+                }
+                catch (DataAccessException e)
+                {
 
+                }
+                mGameData.updateGame(action.getGameID(),);
             }
             case RESIGN ->
             {

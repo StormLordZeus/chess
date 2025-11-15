@@ -93,7 +93,7 @@ public class DrawBoard
     private static void printHeader(PrintStream aOut, String aColor)
     {
         // file letters at the top
-        aOut.print("  "); // left margin
+        aOut.print(RESET_TEXT_COLOR + "  "); // left margin
         int i = 1;
         if (aColor.equals("WHITE"))
         {
