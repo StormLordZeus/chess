@@ -17,11 +17,13 @@ public class ServerMessage {
         NOTIFICATION
     }
 
-    public ServerMessage(ServerMessageType type) {
+    public ServerMessage(ServerMessageType type)
+    {
         this.serverMessageType = type;
     }
 
-    public ServerMessageType getServerMessageType() {
+    public ServerMessageType getServerMessageType()
+    {
         return this.serverMessageType;
     }
 
