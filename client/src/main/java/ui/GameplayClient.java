@@ -1,5 +1,7 @@
 package ui;
 
+import websocket.WebSocketFacade;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -9,11 +11,11 @@ import static ui.EscapeSequences.SET_TEXT_COLOR_BLUE;
 
 public class GameplayClient
 {
-    private final ServerFacade mFacade;
+    private final ServerFacade mServerFacade;
 
     public GameplayClient(ServerFacade aFacade)
     {
-        mFacade = aFacade;
+        mServerFacade = aFacade;
     }
 
     public String help()
@@ -31,18 +33,39 @@ public class GameplayClient
         String action = (tokens.length > 0) ? tokens[0] : "help";
         String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
         switch (action.toLowerCase()) {
-            case "1", "exit" ->
+            case "1", "leave" ->
             {
                 if (params.length == 0)
                 {
-                    return new ArrayList<>(List.of("exit", "Exiting chess game"));
+                    return new ArrayList<>(List.of("leave", "Leaving chess game"));
                 }
             }
-            case "2", "quit" ->
+            case "2", "redraw" ->
             {
                 if (params.length == 0)
                 {
-                    return new ArrayList<>(List.of("quit", "Shutting down program"));
+                    return new ArrayList<>(List.of("redraw", "Drawing the Chess Board"));
+                }
+            }
+            case "3", "move" ->
+            {
+                if (params.length == 0)
+                {
+                    return new ArrayList<>(List.of("move", "Making a move"));
+                }
+            }
+            case "4", "resign" ->
+            {
+                if (params.length == 0)
+                {
+                    return new ArrayList<>(List.of("resign", "Are you sure you want to resign?"));
+                }
+            }
+            case "5", "highlight" ->
+            {
+                if (params.length == 0)
+                {
+                    return new ArrayList<>(List.of("highlight", "Highlighting legal moves"));
                 }
             }
             default ->

@@ -1,5 +1,7 @@
 package ui;
 
+import websocket.WebSocketFacade;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -12,6 +14,7 @@ public class ReplLoop {
     private List<String> mPreResult;
     private List<String> mPostResult;
     Scanner mScanner = new Scanner(System.in);
+    private final WebSocketFacade mWebFacade = new WebSocketFacade();
 
     public ReplLoop (String aUrl)
     {
@@ -44,7 +47,6 @@ public class ReplLoop {
                 System.out.print(SET_TEXT_COLOR_BLUE + mPreResult.get(1));
                 if (mPreResult.getFirst().equals("login") || mPreResult.getFirst().equals("register"))
                 {
-                    System.out.println("Auth token is " + mPreResult.getLast());
                     postLoginLoop(mPreResult.getLast());
                     if (!mPreResult.getFirst().equals("quit")) 
                     {

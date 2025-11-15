@@ -6,6 +6,7 @@ import dataaccess.*;
 import io.javalin.*;
 import io.javalin.http.Context;
 import io.javalin.http.UnauthorizedResponse;
+import io.javalin.websocket.WsContext;
 import model.*;
 import org.eclipse.jetty.http.BadMessageException;
 import service.GameService;
@@ -40,6 +41,13 @@ public class Server {
 
         // Register your endpoints and exception handlers here.
         createHandlers();
+
+        WebSocketHandler handler = new WebSocketHandler();
+        mJavalin.ws("/ws", ws -> {
+            ws.onConnect(WsContext::enableAutomaticPings);
+            ws.onMessage(handler);
+            ws.onClose(handler);
+        });
     }
 
     private void createHandlers()

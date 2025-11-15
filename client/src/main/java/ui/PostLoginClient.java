@@ -21,7 +21,7 @@ public class PostLoginClient
 
     public String help()
     {
-        return "Type the number or string of the action you want to select\n" +
+        return "\nType the number or string of the action you want to select\n" +
                 SET_TEXT_COLOR_BLUE + "1: create <NAME>" + RESET_TEXT_COLOR + " - a game\n" +
                 SET_TEXT_COLOR_BLUE + "2: list" + RESET_TEXT_COLOR + " - games\n" +
                 SET_TEXT_COLOR_BLUE + "3: join <ID> [BLACK|WHITE}" + RESET_TEXT_COLOR + " - a game\n" +
@@ -63,7 +63,27 @@ public class PostLoginClient
                 {
                     if (params.length == 2)
                     {
-                        int gameID = mNumToIDs.get(Integer.parseInt(params[0]));
+                        int gameID;
+                        if (params[0].matches("-?\\d+"))
+                        {
+                            try
+                            {
+                                gameID = mNumToIDs.get(Integer.parseInt(params[0]));
+                            }
+                            catch (NullPointerException e)
+                            {
+                                return new ArrayList<>(List.of(
+                                        "help",
+                                        "Didn't enter a valid game ID. Game doesn't exist\n" + help()));
+                            }
+                        }
+                        else
+                        {
+                            return new ArrayList<>(List.of(
+                                    "help",
+                                    "Didn't enter a valid game ID. Must be a number\n" + help()));
+                        }
+
                         mFacade.joinGame(new JoinGameRequest(gameID,
                                 params[1].toUpperCase(), aAuthtoken));
                         return new ArrayList<>(List.of(
