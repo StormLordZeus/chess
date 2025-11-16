@@ -13,7 +13,6 @@ public class WebSocketSessions
     public void addSessionToGame(int aGameID, Session aSession) throws IOException
     {
         connections.put(aGameID, aSession);
-        broadcastMessage(aSession, "");
     }
 
     public void removeSessionFromGame(int gameID, Session session)

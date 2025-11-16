@@ -6,16 +6,13 @@ import com.google.gson.Gson;
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
-import io.javalin.http.UnauthorizedResponse;
 import io.javalin.websocket.*;
 import model.AuthData;
 import model.GameData;
-import org.eclipse.jetty.websocket.api.Session;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.commands.UserJoinCommand;
-import websocket.messages.CheckMessage;
-import websocket.messages.GameOverMessage;
+import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
@@ -45,116 +42,179 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         {
             case CONNECT ->
             {
-                UserJoinCommand joinAction = new Gson().fromJson(ctx.message(), UserJoinCommand.class);
-                try
-                {
-                    AuthData auth = mAuthData.getAuth(action.getAuthToken());
-                }
-                catch (DataAccessException e)
-                {
-
-                }
-                sessions.addSessionToGame(action.getGameID(), ctx.session);
-                sessions.broadcastMessage(ctx.session, "");
+                connect(action, ctx);
             }
             case MAKE_MOVE ->
             {
-                MakeMoveCommand moveAction = new Gson().fromJson(ctx.message(), MakeMoveCommand.class);
-                AuthData auth;
-                try
-                {
-                    auth = mAuthData.getAuth(action.getAuthToken());
-                }
-                catch (DataAccessException e)
-                {
-                    return;
-                }
-                try
-                {
-                    mGameData.updateGame(moveAction.getGameID(), null,null, moveAction.getMove());
-                    GameData game = mGameData.getGame(moveAction.getGameID());
-                    ChessGame gameBoard = game.game();
-                    if (auth.username().equals(game.whiteUsername()))
-                    {
-                        if (gameBoard.isInCheck(ChessGame.TeamColor.BLACK))
-                        {
-                            sessions.broadcastMessage(null, new CheckMessage(
-                                    ServerMessage.ServerMessageType.NOTIFICATION, game.blackUsername()));
-                        }
-                    }
-                    else
-                    {
-                        if (gameBoard.isInCheck(ChessGame.TeamColor.WHITE))
-                        {
-                            sessions.broadcastMessage(null, new CheckMessage(
-                                    ServerMessage.ServerMessageType.NOTIFICATION, game.whiteUsername()));
-                        }
-                    }
-                }
-                catch (DataAccessException e)
-                {
-                    throw new RuntimeException(e);
-                }
-                catch (InvalidMoveException e)
-                {
-                    return;
-                }
+                makeMove(action, ctx);
             }
             case LEAVE ->
             {
-                UserJoinCommand leaveAction = new Gson().fromJson(ctx.message(), UserJoinCommand.class);
-                AuthData auth;
-                try
-                {
-                    auth = mAuthData.getAuth(action.getAuthToken());
-                }
-                catch (DataAccessException e)
-                {
-                    return;
-                }
-                try
-                {
-                    if (leaveAction.getColor() != null)
-                    {
-                        mGameData.updateGame(action.getGameID(), leaveAction.getColor(), auth.username(), null);
-                    }
-                }
-                catch (DataAccessException e)
-                {
-                    throw new RuntimeException(e);
-                }
-                catch (InvalidMoveException e)
-                {
-                    return;
-                }
+                leaveGame(action, ctx);
             }
             case RESIGN ->
             {
-                AuthData auth;
-                String enemy;
-                try
-                {
-                    auth = mAuthData.getAuth(action.getAuthToken());
-                }
-                catch (DataAccessException e)
-                {
-                    return;
-                }
-                try
-                {
-                    GameData game = mGameData.getGame(action.getGameID());
-                    enemy = auth.username().equals(game.whiteUsername()) ? game.blackUsername() : game.whiteUsername();
-                }
-                catch (DataAccessException e)
-                {
-                    throw new RuntimeException(e);
-                }
-                sessions.broadcastMessage(null, new GameOverMessage(
-                        ServerMessage.ServerMessageType.NOTIFICATION,
-                        GameOverMessage.EndType.RESIGN,
-                        enemy,
-                        auth.username()));
+                resign(action, ctx);
             }
+        }
+    }
+
+    public void connect(UserGameCommand aAction, WsMessageContext aCtx) throws IOException
+    {
+        AuthData auth = authenticate(aAction.getAuthToken());
+        if (auth == null)
+        {
+            aCtx.session.getRemote().sendString("Error: User isn't logged in\n");
+            return;
+        }
+
+        UserJoinCommand joinAction = new Gson().fromJson(aCtx.message(), UserJoinCommand.class);
+        sessions.addSessionToGame(aAction.getGameID(), aCtx.session);
+
+        String message = auth.username() + " has connected";
+        if (joinAction.getColor() != null)
+        {
+            message += " as " + joinAction.getColor() + "\n";
+        }
+        else
+        {
+            message += " as an observer\n";
+        }
+        sessions.broadcastMessage(aCtx.session, new NotificationMessage(
+                ServerMessage.ServerMessageType.NOTIFICATION, message));
+    }
+
+    public void makeMove(UserGameCommand aAction, WsMessageContext aCtx) throws IOException
+    {
+        AuthData auth = authenticate(aAction.getAuthToken());
+        if (auth == null)
+        {
+            aCtx.session.getRemote().sendString("Error: User isn't logged in\n");
+            return;
+        }
+
+        MakeMoveCommand moveAction = new Gson().fromJson(aCtx.message(), MakeMoveCommand.class);
+        try
+        {
+            mGameData.updateGame(moveAction.getGameID(), null,null, moveAction.getMove());
+            GameData game = mGameData.getGame(moveAction.getGameID());
+            ChessGame gameBoard = game.game();
+
+            String message = "";
+            if (auth.username().equals(game.whiteUsername()))
+            {
+                if (gameBoard.isInCheckmate(ChessGame.TeamColor.BLACK))
+                {
+                    message = game.blackUsername() + " has been checkmated. " +
+                            game.whiteUsername() + " has won the game!\n";
+                }
+                else if (gameBoard.isInStalemate(ChessGame.TeamColor.BLACK))
+                {
+                    message = game.blackUsername() + " has been stalemated. " +
+                            game.whiteUsername() + " has won the game!\n";
+                }
+                else if (gameBoard.isInCheck(ChessGame.TeamColor.BLACK))
+                {
+                    message = game.blackUsername() + " has resigned. " +
+                            game.whiteUsername() + " has won the game!\n";
+                }
+                sessions.broadcastMessage(null, new NotificationMessage(
+                        ServerMessage.ServerMessageType.NOTIFICATION, message));
+            }
+            else
+            {
+                if (gameBoard.isInCheckmate(ChessGame.TeamColor.WHITE))
+                {
+                    message = game.whiteUsername() + " has been checkmated. " +
+                            game.blackUsername() + " has won the game!\n";
+                }
+                else if (gameBoard.isInStalemate(ChessGame.TeamColor.WHITE))
+                {
+                    message = game.whiteUsername() + " has been stalemated. " +
+                            game.blackUsername() + " has won the game!\n";
+                }
+                else if (gameBoard.isInCheck(ChessGame.TeamColor.WHITE))
+                {
+                    message = game.whiteUsername() + " has resigned. " +
+                            game.blackUsername() + " has won the game!\n";
+                }
+                sessions.broadcastMessage(null, new NotificationMessage(
+                        ServerMessage.ServerMessageType.NOTIFICATION, message));
+            }
+        }
+        catch (DataAccessException e)
+        {
+            aCtx.session.getRemote().sendString("Error: Failed to connect to the SQL database\n");
+        }
+        catch (InvalidMoveException e) {
+            aCtx.session.getRemote().sendString("Error: Illegal move specified or it is not your turn" +
+                    ". Please enter a legal move or wait until it is your turn\n");
+        }
+    }
+
+    public void leaveGame(UserGameCommand aAction, WsMessageContext aCtx) throws IOException
+    {
+        AuthData auth = authenticate(aAction.getAuthToken());
+        if (auth == null)
+        {
+            aCtx.session.getRemote().sendString("Error: User isn't logged in\n");
+            return;
+        }
+
+        UserJoinCommand leaveAction = new Gson().fromJson(aCtx.message(), UserJoinCommand.class);
+        try
+        {
+            if (leaveAction.getColor() != null)
+            {
+                mGameData.updateGame(aAction.getGameID(), leaveAction.getColor(), auth.username(), null);
+            }
+        }
+        catch (DataAccessException e)
+        {
+            aCtx.session.getRemote().sendString("Error: Failed to connect to the SQL database, or bad input\n");
+        }
+        catch (InvalidMoveException e)
+        {
+            aCtx.session.getRemote().sendString("Error: This is impossible to trigger as move is null\n");
+        }
+
+        sessions.broadcastMessage(aCtx.session, new NotificationMessage(
+                ServerMessage.ServerMessageType.NOTIFICATION, auth.username() + " has left the game\n"));
+    }
+
+    public void resign(UserGameCommand aAction, WsMessageContext aCtx) throws IOException
+    {
+        AuthData auth = authenticate(aAction.getAuthToken());
+        if (auth == null)
+        {
+            aCtx.session.getRemote().sendString("Error: User isn't logged in\n");
+            return;
+        }
+
+        String enemy;
+        try
+        {
+            GameData game = mGameData.getGame(aAction.getGameID());
+            enemy = auth.username().equals(game.whiteUsername()) ? game.blackUsername() : game.whiteUsername();
+        }
+        catch (DataAccessException e)
+        {
+            throw new RuntimeException(e);
+        }
+        String message = auth.username() + " has resigned. " + enemy + " has won the game!\n";
+        sessions.broadcastMessage(null, new NotificationMessage(
+                ServerMessage.ServerMessageType.NOTIFICATION, message));
+    }
+
+    private AuthData authenticate(String aAuthToken)
+    {
+        try
+        {
+            return mAuthData.getAuth(aAuthToken);
+        }
+        catch (DataAccessException e)
+        {
+            return null;
         }
     }
 
