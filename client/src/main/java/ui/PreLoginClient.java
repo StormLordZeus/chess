@@ -59,8 +59,7 @@ public class PreLoginClient
                         return new ArrayList<>(List.of(
                                 "login",
                                 String.format("Logged in as %s", result.username()),
-                                result.authToken(),
-                                result.username()));
+                                result.authToken()));
                     }
                 }
                 default ->

@@ -20,8 +20,8 @@ import java.io.IOException;
 public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler {
 
     private final WebSocketSessions sessions = new WebSocketSessions();
-    private GameDAO mGameData;
-    private AuthDAO mAuthData;
+    private final GameDAO mGameData;
+    private final AuthDAO mAuthData;
 
     public WebSocketHandler(GameDAO aGameData, AuthDAO aAuthData)
     {
@@ -40,22 +40,10 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         UserGameCommand action = new Gson().fromJson(ctx.message(), UserGameCommand.class);
         switch (action.getCommandType())
         {
-            case CONNECT ->
-            {
-                connect(action, ctx);
-            }
-            case MAKE_MOVE ->
-            {
-                makeMove(action, ctx);
-            }
-            case LEAVE ->
-            {
-                leaveGame(action, ctx);
-            }
-            case RESIGN ->
-            {
-                resign(action, ctx);
-            }
+            case CONNECT -> connect(action, ctx);
+            case MAKE_MOVE -> makeMove(action, ctx);
+            case LEAVE -> leaveGame(action, ctx);
+            case RESIGN -> resign(action, ctx);
         }
     }
 
@@ -221,6 +209,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     @Override
     public void handleClose(WsCloseContext ctx) throws IOException
     {
-
+        sessions.removeSessionFromGame(ctx.session);
     }
 }

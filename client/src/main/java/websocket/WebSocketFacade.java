@@ -14,8 +14,8 @@ import java.net.URISyntaxException;
 
 public class WebSocketFacade extends Endpoint implements MessageHandler.Whole<String>
 {
-    private Session mSession;
-    private GameHandler mMessageHandler;
+    private final Session mSession;
+    private final GameHandler mMessageHandler;
 
     public WebSocketFacade(String aUrl, GameHandler aHandler) throws ResponseException
     {
@@ -29,22 +29,14 @@ public class WebSocketFacade extends Endpoint implements MessageHandler.Whole<St
             mMessageHandler = aHandler;
 
             //set message handler
-            mSession.addMessageHandler(new MessageHandler.Whole<String>()
-            {
-                @Override
-                public void onMessage(String message) {
-                    ServerMessage notification = new Gson().fromJson(message, ServerMessage.class);
-                    mMessageHandler.printMessage(notification);
-                }
+            mSession.addMessageHandler((Whole<String>) message -> {
+                ServerMessage notification = new Gson().fromJson(message, ServerMessage.class);
+                mMessageHandler.printMessage(notification);
             });
         }
         catch (DeploymentException | IOException | URISyntaxException ex)
         {
             throw new ResponseException(ex.getMessage());
-        }
-        catch (URISyntaxException | IOException e)
-        {
-            throw new RuntimeException(e);
         }
     }
 

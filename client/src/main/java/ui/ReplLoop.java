@@ -18,12 +18,9 @@ public class ReplLoop implements GameHandler {
     private final PostLoginClient mPostLogClient;
     private final GameplayClient mGameClient;
     private List<String> mPreResult;
-    private List<String> mPostResult;
     Scanner mScanner = new Scanner(System.in);
-    private WebSocketFacade mWebFacade;
-    private String mUrl;
+    private final String mUrl;
     private String mAuthToken;
-    private String mUsername;
 
     public ReplLoop (String aUrl)
     {
@@ -57,8 +54,7 @@ public class ReplLoop implements GameHandler {
                 System.out.print(SET_TEXT_COLOR_BLUE + mPreResult.get(1));
                 if (mPreResult.getFirst().equals("login") || mPreResult.getFirst().equals("register"))
                 {
-                    mAuthToken = mPreResult.get(2);
-                    mUsername = mPreResult.getLast();
+                    mAuthToken = mPreResult.getLast();
                     postLoginLoop();
                     if (!mPreResult.getFirst().equals("quit")) 
                     {
@@ -79,7 +75,7 @@ public class ReplLoop implements GameHandler {
     {
         System.out.println(mPostLogClient.help());
 
-        mPostResult = new ArrayList<>();
+        List<String> mPostResult = new ArrayList<>();
         mPostResult.add("");
         while (!mPostResult.getFirst().equals("logout"))
         {
@@ -94,7 +90,7 @@ public class ReplLoop implements GameHandler {
                 if (action.equals("join") || action.equals("observe"))
                 {
                     System.out.println();
-                    gameplayLoop(mPostResult.get(2), mAuthToken, mPostResult.getLast());
+                    gameplayLoop(mPostResult.get(2), mPostResult.getLast());
                     if (!mPostResult.getFirst().equals("quit"))
                     {
                         System.out.println(mPostLogClient.help());
@@ -119,6 +115,7 @@ public class ReplLoop implements GameHandler {
 
     private void gameplayLoop(String aColor, String aGameID) throws ResponseException
     {
+        WebSocketFacade mWebFacade;
         try
         {
             mWebFacade = new WebSocketFacade(mUrl, this);
@@ -145,25 +142,21 @@ public class ReplLoop implements GameHandler {
                 gameResult = mGameClient.evaluate(line);
                 System.out.println(SET_TEXT_COLOR_BLUE + gameResult.get(1));
                 String action = gameResult.getFirst();
-                if (action.equals("redraw"))
-                {
-                    DrawBoard.drawChessBoard(aColor);
-                }
-                else if (action.equals("move"))
-                {
-                    String moveString = gameResult.getLast();
-                    ChessPosition start = new ChessPosition(moveString.charAt(1), moveString.charAt(0));
-                    ChessPosition end = new ChessPosition(moveString.charAt(3), moveString.charAt(2));
-                    ChessPiece.PieceType promotion = getPieceType(moveString.charAt(5));
-                    ChessMove move = new ChessMove(start, end, promotion);
-                    mWebFacade.makeMove(mAuthToken, gameID, move);
-                }
-                else if (action.equals("resign"))
-                {
-                    line = mScanner.nextLine().toLowerCase();
-                    if (line.equals("yes"))
-                    {
-                        mWebFacade.resignGame(mAuthToken, gameID);
+                switch (action) {
+                    case "redraw" -> DrawBoard.drawChessBoard(aColor);
+                    case "move" -> {
+                        String moveString = gameResult.getLast();
+                        ChessPosition start = new ChessPosition(moveString.charAt(1), moveString.charAt(0));
+                        ChessPosition end = new ChessPosition(moveString.charAt(3), moveString.charAt(2));
+                        ChessPiece.PieceType promotion = getPieceType(moveString.charAt(5));
+                        ChessMove move = new ChessMove(start, end, promotion);
+                        mWebFacade.makeMove(mAuthToken, gameID, move);
+                    }
+                    case "resign" -> {
+                        line = mScanner.nextLine().toLowerCase();
+                        if (line.equals("yes")) {
+                            mWebFacade.resignGame(mAuthToken, gameID);
+                        }
                     }
                 }
             }

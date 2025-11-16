@@ -10,14 +10,14 @@ public class WebSocketSessions
 {
     public final Map<Integer, Session> connections = new HashMap<>();
 
-    public void addSessionToGame(int aGameID, Session aSession) throws IOException
+    public void addSessionToGame(int aGameID, Session aSession)
     {
         connections.put(aGameID, aSession);
     }
 
-    public void removeSessionFromGame(int gameID, Session session)
+    public void removeSessionFromGame(Session session)
     {
-        connections.remove(gameID);
+        connections.entrySet().removeIf(entry -> entry.getValue().equals(session));
     }
 
     public void broadcastMessage(Session excludeSession, ServerMessage message) throws IOException
