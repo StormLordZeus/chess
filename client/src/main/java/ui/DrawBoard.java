@@ -13,13 +13,11 @@ import static ui.EscapeSequences.*;
 public class DrawBoard
 {
 
-    static void drawChessBoard(String aColor)
+    static void drawChessBoard(String aColor, ChessBoard aBoard)
     {
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
 
         out.print(ERASE_SCREEN);
-        ChessGame game = new ChessGame();
-        ChessBoard board = game.getBoard();
         if (aColor.equals("WHITE"))
         {
             printHeader(out, aColor);
@@ -27,7 +25,7 @@ public class DrawBoard
             for (int y = 8; y > 0; y--) {
                 out.print(y + " ");
                 for (int x = 1; x < 9; x++) {
-                    placePiece(out, board, x, y);
+                    placePiece(out, aBoard, x, y);
 
                 }
                 out.print(RESET_BG_COLOR);
@@ -44,7 +42,7 @@ public class DrawBoard
             for (int y = 1; y < 9; y++) {
                 out.print(y + " ");
                 for (int x = 8; x > 0; x--) {
-                    placePiece(out, board, x, y);
+                    placePiece(out, aBoard, x, y);
                 }
                 out.print(RESET_BG_COLOR);
                 out.print(RESET_TEXT_COLOR);

@@ -44,7 +44,7 @@ public class Server {
 
         WebSocketHandler handler = new WebSocketHandler(gameData, authData);
         mJavalin.ws("/ws", ws -> {
-            ws.onConnect(WsContext::enableAutomaticPings);
+            ws.onConnect(handler);
             ws.onMessage(handler);
             ws.onClose(handler);
         });

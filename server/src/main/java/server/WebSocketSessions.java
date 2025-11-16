@@ -1,5 +1,6 @@
 package server;
 
+import com.google.gson.Gson;
 import org.eclipse.jetty.websocket.api.Session;
 import websocket.messages.ServerMessage;
 
@@ -22,15 +23,17 @@ public class WebSocketSessions
 
     public void broadcastMessage(Session excludeSession, ServerMessage message) throws IOException
     {
+
         for (Session con : connections.values())
         {
             if (con.isOpen())
             {
                 if (!con.equals(excludeSession))
                 {
-                    con.getRemote().sendString(message.toString());
+                    con.getRemote().sendString(new Gson().toJson(message));
                 }
             }
         }
+        System.out.println("Message has been broadcast");
     }
 }

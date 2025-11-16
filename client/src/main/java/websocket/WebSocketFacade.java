@@ -6,46 +6,47 @@ import exception.ResponseException;
 import jakarta.websocket.*;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
-import websocket.messages.ServerMessage;
+import websocket.commands.UserJoinCommand;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-public class WebSocketFacade extends Endpoint implements MessageHandler.Whole<String>
-{
-    private final Session mSession;
-    private final GameHandler mMessageHandler;
+public class WebSocketFacade extends Endpoint {
+    private Session mSession;
+    private GameHandler mHandler;
 
-    public WebSocketFacade(String aUrl, GameHandler aHandler) throws ResponseException
+    public WebSocketFacade(String url, GameHandler handler) throws Exception
     {
-        try
-        {
-            aUrl = aUrl.replace("http", "ws");
-            URI socketURI = new URI(aUrl + "/ws");
-
-            WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-            mSession = container.connectToServer(this, socketURI);
-            mMessageHandler = aHandler;
-
-            //set message handler
-            mSession.addMessageHandler((Whole<String>) message -> {
-                ServerMessage notification = new Gson().fromJson(message, ServerMessage.class);
-                mMessageHandler.printMessage(notification);
-            });
-        }
-        catch (DeploymentException | IOException | URISyntaxException ex)
-        {
-            throw new ResponseException(ex.getMessage());
-        }
+        this.mHandler = handler;
+        URI socketURI = new URI(url.replace("http", "ws") + "/ws");
+        WebSocketContainer container = ContainerProvider.getWebSocketContainer();
+        container.connectToServer(this, socketURI);
     }
 
-    public void connect(String aAuthToken, int aGameID) throws ResponseException
+    @Override
+    public void onOpen(Session session, EndpointConfig config)
+    {
+        System.out.println("Client connected!");
+        this.mSession = session;
+        session.addMessageHandler(new MessageHandler.Whole<String>() {
+            @Override
+            public void onMessage(String message) {
+                mHandler.printMessage(message);
+            }
+        });
+        System.out.println("Handler is connected!");
+    }
+
+    public void connect(String aAuthToken, int aGameID, String aColor) throws ResponseException
     {
         try
         {
-            UserGameCommand connect = new UserGameCommand(UserGameCommand.CommandType.CONNECT, aAuthToken, aGameID);
+            System.out.println("Websocket connection has begun");
+            UserJoinCommand connect = new UserJoinCommand(UserGameCommand.CommandType.CONNECT, aAuthToken, aGameID, aColor);
+            System.out.println("Sending the connect message via the basic remote");
             mSession.getBasicRemote().sendText(new Gson().toJson(connect));
+            System.out.println("Message to server finished sending!");
         }
         catch (IOException e)
         {
@@ -55,7 +56,8 @@ public class WebSocketFacade extends Endpoint implements MessageHandler.Whole<St
 
     public void makeMove(String aAuthToken, int aGameID, ChessMove aMove) throws ResponseException
     {
-        try {
+        try
+        {
             MakeMoveCommand move = new MakeMoveCommand(UserGameCommand.CommandType.MAKE_MOVE, aAuthToken, aGameID, aMove);
             mSession.getBasicRemote().sendText(new Gson().toJson(move));
         }
@@ -65,11 +67,12 @@ public class WebSocketFacade extends Endpoint implements MessageHandler.Whole<St
         }
     }
 
-    public void leaveGame(String aAuthToken, int aGameID) throws ResponseException
+    public void leaveGame(String aAuthToken, int aGameID, String aColor) throws ResponseException
     {
-        try {
-            UserGameCommand connect = new UserGameCommand(UserGameCommand.CommandType.LEAVE, aAuthToken, aGameID);
-            mSession.getBasicRemote().sendText(new Gson().toJson(connect));
+        try
+        {
+            UserJoinCommand leave = new UserJoinCommand(UserGameCommand.CommandType.LEAVE, aAuthToken, aGameID, aColor);
+            mSession.getBasicRemote().sendText(new Gson().toJson(leave));
         }
         catch (IOException e)
         {
@@ -79,19 +82,14 @@ public class WebSocketFacade extends Endpoint implements MessageHandler.Whole<St
 
     public void resignGame(String aAuthToken, int aGameID) throws ResponseException
     {
-        try {
-            UserGameCommand connect = new UserGameCommand(UserGameCommand.CommandType.RESIGN, aAuthToken, aGameID);
-            mSession.getBasicRemote().sendText(new Gson().toJson(connect));
+        try
+        {
+            UserGameCommand resign = new UserGameCommand(UserGameCommand.CommandType.RESIGN, aAuthToken, aGameID);
+            mSession.getBasicRemote().sendText(new Gson().toJson(resign));
         }
         catch (IOException e)
         {
             throw new ResponseException(e.getMessage());
         }
     }
-
-    @Override
-    public void onOpen(Session session, EndpointConfig config) {}
-
-    @Override
-    public void onMessage(String message) {}
 }

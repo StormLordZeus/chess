@@ -63,25 +63,12 @@ public class PostLoginClient
                 {
                     if (params.length == 2)
                     {
-                        int gameID;
-                        if (params[0].matches("-?\\d+"))
-                        {
-                            try
-                            {
-                                gameID = mNumToIDs.get(Integer.parseInt(params[0]));
-                            }
-                            catch (NullPointerException e)
-                            {
-                                return new ArrayList<>(List.of(
-                                        "help",
-                                        "Didn't enter a valid game ID. Game doesn't exist\n" + help()));
-                            }
-                        }
-                        else
-                        {
+                        Integer gameID = parseGameID(params[0]);
+                        if (gameID == null) {
                             return new ArrayList<>(List.of(
                                     "help",
-                                    "Didn't enter a valid game ID. Must be a number\n" + help()));
+                                    "Didn't enter a valid game ID. Must be a number corresponding to an existing game\n" + help()
+                            ));
                         }
 
                         mFacade.joinGame(new JoinGameRequest(gameID,
@@ -97,11 +84,19 @@ public class PostLoginClient
                 {
                     if (params.length == 1)
                     {
-                        int gameID = mNumToIDs.get(Integer.parseInt(params[0]));
+                        Integer gameID = parseGameID(params[0]);
+                        if (gameID == null) {
+                            return new ArrayList<>(List.of(
+                                    "help",
+                                    "Didn't enter a valid game ID. Must be a number corresponding to an existing game\n" + help()
+                            ));
+                        }
+
                         return new ArrayList<>(List.of(
                                 "observe",
                                 "Observing game...",
-                                "WHITE"));
+                                "WHITE",
+                                String.valueOf(gameID)));
                     }
                 }
                 case "5", "logout" ->
@@ -142,11 +137,23 @@ public class PostLoginClient
         for (GameData game: aGames)
         {
             mNumToIDs.put(gameNum, game.gameID());
-            games += String.format("%d: %s\nWhite Player: %s\nBlack Player: %s\nBoard:\n%s\n", gameNum,
-                game.gameName(), game.whiteUsername(), game.blackUsername(), game.game().getBoard().toString());
+            games += String.format("%d: %s\nWhite Player: %s\nBlack Player: %s\n", gameNum,
+                game.gameName(), game.whiteUsername(), game.blackUsername());
             gameNum++;
         }
         games += "***********************************\n";
         return games;
+    }
+
+    private Integer parseGameID(String gameIDStr) {
+        if (!gameIDStr.matches("-?\\d+")) {
+            return null; // Not a number
+        }
+
+        try {
+            return mNumToIDs.get(Integer.parseInt(gameIDStr));
+        } catch (NullPointerException e) {
+            return null; // Number not found in the map
+        }
     }
 }

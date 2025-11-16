@@ -1,6 +1,5 @@
 package ui;
 
-import websocket.WebSocketFacade;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,13 +10,6 @@ import static ui.EscapeSequences.SET_TEXT_COLOR_BLUE;
 
 public class GameplayClient
 {
-    private final ServerFacade mServerFacade;
-
-    public GameplayClient(ServerFacade aFacade)
-    {
-        mServerFacade = aFacade;
-    }
-
     public String help()
     {
         return "Type the number or string of the action you want to select\n" +

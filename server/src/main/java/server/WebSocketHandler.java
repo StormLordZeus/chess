@@ -12,6 +12,8 @@ import model.GameData;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.commands.UserJoinCommand;
+import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
@@ -30,33 +32,37 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
     @Override
-    public void handleConnect(WsConnectContext ctx) {
+    public void handleConnect(WsConnectContext ctx)
+    {
         ctx.enableAutomaticPings();
     }
 
     @Override
-    public void handleMessage(WsMessageContext ctx) throws IOException
+    public void handleMessage(WsMessageContext aCtx) throws IOException
     {
-        UserGameCommand action = new Gson().fromJson(ctx.message(), UserGameCommand.class);
+        String json = aCtx.message();
+        UserGameCommand action = new Gson().fromJson(json, UserGameCommand.class);
         switch (action.getCommandType())
         {
-            case CONNECT -> connect(action, ctx);
-            case MAKE_MOVE -> makeMove(action, ctx);
-            case LEAVE -> leaveGame(action, ctx);
-            case RESIGN -> resign(action, ctx);
+            case CONNECT -> connect(action, json, aCtx);
+            case MAKE_MOVE -> makeMove(action, json, aCtx);
+            case LEAVE -> leaveGame(action, json, aCtx);
+            case RESIGN -> resign(action, json, aCtx);
         }
     }
 
-    public void connect(UserGameCommand aAction, WsMessageContext aCtx) throws IOException
+    public void connect(UserGameCommand aAction, String aJson, WsMessageContext aCtx) throws IOException
     {
+        System.out.println("We HAVE arrived in the connect function");
         AuthData auth = authenticate(aAction.getAuthToken());
         if (auth == null)
         {
-            aCtx.session.getRemote().sendString("Error: User isn't logged in\n");
+            sendError(aCtx, "Error: User isn't logged in\n");
             return;
         }
 
-        UserJoinCommand joinAction = new Gson().fromJson(aCtx.message(), UserJoinCommand.class);
+        System.out.println("We are fully authenticated");
+        UserJoinCommand joinAction = new Gson().fromJson(aJson, UserJoinCommand.class);
         sessions.addSessionToGame(aAction.getGameID(), aCtx.session);
 
         String message = auth.username() + " has connected";
@@ -68,20 +74,38 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         {
             message += " as an observer\n";
         }
+        System.out.print("Our message is: " + message);
+
+        GameData game;
+        try
+        {
+            game = mGameData.getGame(aAction.getGameID());
+        }
+        catch (DataAccessException e)
+        {
+            sendError(aCtx, "Failed to connect to the SQL database or game does exist");
+            return;
+        }
+
+        System.out.println("We are about to send data back to the client");
+        LoadGameMessage loadGame = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, game.game());
+        aCtx.session.getRemote().sendString(new Gson().toJson(loadGame));
+        System.out.println("Sending a join notification to all other clients!");
         sessions.broadcastMessage(aCtx.session, new NotificationMessage(
                 ServerMessage.ServerMessageType.NOTIFICATION, message));
     }
 
-    public void makeMove(UserGameCommand aAction, WsMessageContext aCtx) throws IOException
+    public void makeMove(UserGameCommand aAction, String aJson, WsMessageContext aCtx) throws IOException
     {
+        System.out.println("We HAVE arrived in the makeMove function");
         AuthData auth = authenticate(aAction.getAuthToken());
         if (auth == null)
         {
-            aCtx.session.getRemote().sendString("Error: User isn't logged in\n");
+            sendError(aCtx, "Error: User isn't logged in\n");
             return;
         }
 
-        MakeMoveCommand moveAction = new Gson().fromJson(aCtx.message(), MakeMoveCommand.class);
+        MakeMoveCommand moveAction = new Gson().fromJson(aJson, MakeMoveCommand.class);
         try
         {
             mGameData.updateGame(moveAction.getGameID(), null,null, moveAction.getMove());
@@ -132,50 +156,56 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         }
         catch (DataAccessException e)
         {
-            aCtx.session.getRemote().sendString("Error: Failed to connect to the SQL database\n");
+            sendError(aCtx, "Error: Failed to connect to the SQL database\n");
         }
         catch (InvalidMoveException e) {
-            aCtx.session.getRemote().sendString("Error: Illegal move specified or it is not your turn" +
-                    ". Please enter a legal move or wait until it is your turn\n");
+            sendError(aCtx, "Error: Illegal move specified or it is not your turn." +
+                            " Please enter a legal move or wait until it is your turn\n");
         }
     }
 
-    public void leaveGame(UserGameCommand aAction, WsMessageContext aCtx) throws IOException
+    public void leaveGame(UserGameCommand aAction, String aJson, WsMessageContext aCtx) throws IOException
     {
+        System.out.println("We HAVE arrived in the leaveGame function");
         AuthData auth = authenticate(aAction.getAuthToken());
         if (auth == null)
         {
-            aCtx.session.getRemote().sendString("Error: User isn't logged in\n");
+            sendError(aCtx, "Error: User isn't logged in\n");
             return;
         }
 
-        UserJoinCommand leaveAction = new Gson().fromJson(aCtx.message(), UserJoinCommand.class);
+        UserJoinCommand leaveAction = new Gson().fromJson(aJson, UserJoinCommand.class);
+        System.out.println("The leave action has color: " + leaveAction.getColor() + " and the username is " + auth.username());
         try
         {
             if (leaveAction.getColor() != null)
             {
+                System.out.println("Updating the game to remove the player");
                 mGameData.updateGame(aAction.getGameID(), leaveAction.getColor(), auth.username(), null);
+                GameData game = mGameData.getGame(aAction.getGameID());
+                System.out.println("The players are white: " + game.whiteUsername() + " and black " + game.blackUsername());
             }
         }
         catch (DataAccessException e)
         {
-            aCtx.session.getRemote().sendString("Error: Failed to connect to the SQL database, or bad input\n");
+            sendError(aCtx, "Error: Failed to connect to the SQL database, or bad input\n");
         }
         catch (InvalidMoveException e)
         {
-            aCtx.session.getRemote().sendString("Error: This is impossible to trigger as move is null\n");
+            sendError(aCtx, "Error: This is impossible to trigger as move is null\n");
         }
 
         sessions.broadcastMessage(aCtx.session, new NotificationMessage(
                 ServerMessage.ServerMessageType.NOTIFICATION, auth.username() + " has left the game\n"));
     }
 
-    public void resign(UserGameCommand aAction, WsMessageContext aCtx) throws IOException
+    public void resign(UserGameCommand aAction, String aJson, WsMessageContext aCtx) throws IOException
     {
+        System.out.println("We HAVE arrived in the resign function");
         AuthData auth = authenticate(aAction.getAuthToken());
         if (auth == null)
         {
-            aCtx.session.getRemote().sendString("Error: User isn't logged in\n");
+            sendError(aCtx,"Error: User isn't logged in\n");
             return;
         }
 
@@ -204,6 +234,13 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         {
             return null;
         }
+    }
+
+    private void sendError(WsMessageContext aCtx, String aError) throws IOException
+    {
+        ErrorMessage error = new ErrorMessage(
+                ServerMessage.ServerMessageType.ERROR, aError);
+        aCtx.session.getRemote().sendString(new Gson().toJson(error));
     }
 
     @Override

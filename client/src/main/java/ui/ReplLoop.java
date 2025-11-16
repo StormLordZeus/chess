@@ -1,11 +1,16 @@
 package ui;
 
+import chess.ChessGame;
 import chess.ChessMove;
 import chess.ChessPiece;
 import chess.ChessPosition;
+import com.google.gson.Gson;
 import exception.ResponseException;
 import websocket.GameHandler;
 import websocket.WebSocketFacade;
+import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 import java.util.ArrayList;
@@ -21,6 +26,7 @@ public class ReplLoop implements GameHandler {
     Scanner mScanner = new Scanner(System.in);
     private final String mUrl;
     private String mAuthToken;
+    private ChessGame mGame;
 
     public ReplLoop (String aUrl)
     {
@@ -28,7 +34,7 @@ public class ReplLoop implements GameHandler {
         ServerFacade facade = new ServerFacade(aUrl);
         mPreLogClient = new PreLoginClient(facade);
         mPostLogClient = new PostLoginClient(facade);
-        mGameClient = new GameplayClient(facade);
+        mGameClient = new GameplayClient();
     }
 
     public void run()
@@ -113,8 +119,7 @@ public class ReplLoop implements GameHandler {
         System.out.println();
     }
 
-    private void gameplayLoop(String aColor, String aGameID) throws ResponseException
-    {
+    private void gameplayLoop(String aColor, String aGameID) throws ResponseException, InterruptedException {
         WebSocketFacade mWebFacade;
         try
         {
@@ -124,14 +129,21 @@ public class ReplLoop implements GameHandler {
         {
             System.out.println("Failed to establish a websocket connection. Exiting gameplay loop");
             return;
+        } catch (Exception e)
+        {
+            throw new RuntimeException(e);
         }
         int gameID = Integer.parseInt(aGameID);
-        System.out.println(mGameClient.help());
-        mWebFacade.connect(mAuthToken, gameID);
+        System.out.print(mGameClient.help());
+        System.out.println("Connecting to the WEBSOCKET!!!!");
+        mWebFacade.connect(mAuthToken, gameID, aColor);
 
         List<String> gameResult = new ArrayList<>();
         gameResult.add("");
-        DrawBoard.drawChessBoard(aColor);
+        while (mGame == null) {
+            Thread.sleep(10);
+        }
+        DrawBoard.drawChessBoard(aColor, mGame.getBoard());
         while (!gameResult.getFirst().equals("leave"))
         {
             System.out.print("\n" + RESET_TEXT_COLOR + "[GAMEPLAY] >>> " + SET_TEXT_COLOR_GREEN);
@@ -143,7 +155,7 @@ public class ReplLoop implements GameHandler {
                 System.out.println(SET_TEXT_COLOR_BLUE + gameResult.get(1));
                 String action = gameResult.getFirst();
                 switch (action) {
-                    case "redraw" -> DrawBoard.drawChessBoard(aColor);
+                    case "redraw" -> DrawBoard.drawChessBoard(aColor, mGame.getBoard());
                     case "move" -> {
                         String moveString = gameResult.getLast();
                         ChessPosition start = new ChessPosition(moveString.charAt(1), moveString.charAt(0));
@@ -166,7 +178,7 @@ public class ReplLoop implements GameHandler {
                 System.out.print(msg);
             }
         }
-        mWebFacade.leaveGame(mAuthToken, gameID);
+        mWebFacade.leaveGame(mAuthToken, gameID, aColor);
         System.out.println();
     }
 
@@ -199,9 +211,31 @@ public class ReplLoop implements GameHandler {
     }
 
     @Override
-    public void printMessage(ServerMessage aMessage)
+    public void printMessage(String aMessage)
     {
+        System.out.println("A message from the server has been received!");
+        ServerMessage messageParent = new Gson().fromJson(aMessage, ServerMessage.class);
+        switch (messageParent.getServerMessageType())
+        {
+            case ERROR ->
+            {
+                ErrorMessage error = new Gson().fromJson(aMessage, ErrorMessage.class);
+                System.out.print(error.getError());
+            }
+            case LOAD_GAME ->
+            {
+                System.out.println("Loading the game");
+                LoadGameMessage gameMessage = new Gson().fromJson(aMessage, LoadGameMessage.class);
+                mGame = gameMessage.getGame();
+                System.out.println("Game loaded");
 
+            }
+            case NOTIFICATION ->
+            {
+                NotificationMessage notification = new Gson().fromJson(aMessage, NotificationMessage.class);
+                System.out.print(notification.getMessage());
+            }
+        }
     }
 
     @Override

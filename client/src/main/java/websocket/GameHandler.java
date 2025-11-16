@@ -4,7 +4,7 @@ import websocket.messages.ServerMessage;
 
 public interface GameHandler
 {
-    public void printMessage(ServerMessage aMessage);
+    void printMessage(String aMessage);
 
-    public void updateGame(int aGameID);
+    void updateGame(int aGameID);
 }
