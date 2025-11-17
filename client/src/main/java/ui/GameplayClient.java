@@ -18,7 +18,7 @@ public class GameplayClient
                 SET_TEXT_COLOR_BLUE + "3: move <StartPosEndPos> ex (d2d4)" + RESET_TEXT_COLOR + " - a piece\n" +
                 SET_TEXT_COLOR_BLUE + "4: resign" + RESET_TEXT_COLOR + " - the game\n" +
                 SET_TEXT_COLOR_BLUE + "5: highlight <Position> ex (f7)" + RESET_TEXT_COLOR + " - legal moves\n" +
-                SET_TEXT_COLOR_BLUE + "6: help" + RESET_TEXT_COLOR + " - with possible commands\n";
+                SET_TEXT_COLOR_BLUE + "6: help" + RESET_TEXT_COLOR + " - with possible commands";
     }
 
     public List<String> evaluate(String aInput)
@@ -48,9 +48,10 @@ public class GameplayClient
                 {
                     if (params[0].length() != 4)
                     {
-                        return new ArrayList<>(List.of("help", "Error: Move had too many or too few characters. Valid moves have 4 characters"));
+                        return new ArrayList<>(List.of("help", "Error: Move had too many or too few characters." +
+                                " Valid moves have 4 characters"));
                     }
-                    return new ArrayList<>(List.of("move", "Making a move", params[0]));
+                    return new ArrayList<>(List.of("move", "Attempting to make a move", params[0]));
                 }
             }
             case "4", "resign" ->
@@ -62,9 +63,15 @@ public class GameplayClient
             }
             case "5", "highlight" ->
             {
-                if (params.length == 0)
+                if (params.length == 1)
                 {
-                    return new ArrayList<>(List.of("highlight", "Highlighting legal moves"));
+                    if (params[0].length() != 2)
+                    {
+                        return new ArrayList<>(List.of("help",
+                                "Error: Position to highlight had too few or too many characters. " +
+                                        "Valid positions have 2 characters, ex. a2\n"));
+                    }
+                    return new ArrayList<>(List.of("highlight", "Highlighting legal moves", params[0]));
                 }
             }
             default ->

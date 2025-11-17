@@ -121,7 +121,7 @@ public class ReplLoop implements GameHandler {
         System.out.println();
     }
 
-    private void gameplayLoop(String aGameID) throws ResponseException, InterruptedException {
+    private void gameplayLoop(String aGameID) throws ResponseException {
         WebSocketFacade mWebFacade;
         try
         {
@@ -137,14 +137,12 @@ public class ReplLoop implements GameHandler {
         }
         int gameID = Integer.parseInt(aGameID);
         System.out.print(mGameClient.help());
-        System.out.println("Connecting to the WEBSOCKET!!!!");
         mWebFacade.connect(mAuthToken, gameID, mColor);
 
         List<String> gameResult = new ArrayList<>();
         gameResult.add("");
         while (!gameResult.getFirst().equals("leave"))
         {
-            System.out.print("\n" + RESET_TEXT_COLOR + "[GAMEPLAY] >>> " + SET_TEXT_COLOR_GREEN);
             String line = mScanner.nextLine();
 
             try
@@ -154,22 +152,31 @@ public class ReplLoop implements GameHandler {
                 String action = gameResult.getFirst();
                 switch (action) {
                     case "redraw" -> DrawBoard.drawChessBoard(mColor, mGame.getBoard());
-                    case "move" -> {
-                        String moveString = gameResult.getLast();
-                        ChessPosition start = new ChessPosition(moveString.charAt(1) - '0',
-                                (moveString.charAt(0) - 'a') + 1);
-                        ChessPosition end = new ChessPosition(moveString.charAt(3) - '0',
-                                (moveString.charAt(2) - 'a') + 1);
-                        //ChessPiece.PieceType promotion = getPieceType(moveString.charAt(5));
-                        ChessMove move = new ChessMove(start, end, null);
+                    case "move" ->
+                    {
+                        ChessMove move = getChessMove(gameResult.getLast());
                         mWebFacade.makeMove(mAuthToken, gameID, move);
                     }
-                    case "resign" -> {
+                    case "highlight" ->
+                    {
+                        String positionString = gameResult.getLast();
+                        ChessPosition highlight = new ChessPosition(positionString.charAt(1) - '0',
+                                (positionString.charAt(0) - 'a') + 1);
+                        DrawBoard.highlightSquares(mGame, highlight);
+                        DrawBoard.drawChessBoard(mColor, mGame.getBoard());
+                    }
+                    case "resign" ->
+                    {
                         line = mScanner.nextLine().toLowerCase();
-                        if (line.equals("yes")) {
+                        if (line.equals("yes"))
+                        {
                             mWebFacade.resignGame(mAuthToken, gameID);
                         }
                     }
+                }
+                if (!action.equals("resign"))
+                {
+                    System.out.print("\n" + RESET_TEXT_COLOR + "[GAMEPLAY] >>> " + SET_TEXT_COLOR_GREEN);
                 }
             }
             catch (Throwable e)
@@ -180,6 +187,15 @@ public class ReplLoop implements GameHandler {
         }
         mWebFacade.leaveGame(mAuthToken, gameID, mColor);
         System.out.println();
+    }
+
+    private static ChessMove getChessMove(String moveString) {
+        ChessPosition start = new ChessPosition(moveString.charAt(1) - '0',
+                (moveString.charAt(0) - 'a') + 1);
+        ChessPosition end = new ChessPosition(moveString.charAt(3) - '0',
+                (moveString.charAt(2) - 'a') + 1);
+        //ChessPiece.PieceType promotion = getPieceType(moveString.charAt(5));
+        return new ChessMove(start, end, null);
     }
 
     private static ChessPiece.PieceType getPieceType(char promoType) {
@@ -213,29 +229,29 @@ public class ReplLoop implements GameHandler {
     @Override
     public void printMessage(String aMessage)
     {
-        System.out.println("A message from the server has been received!");
         ServerMessage messageParent = new Gson().fromJson(aMessage, ServerMessage.class);
-        System.out.println("The message type is: " + messageParent.getServerMessageType());
         switch (messageParent.getServerMessageType())
         {
             case ERROR ->
             {
                 ErrorMessage error = new Gson().fromJson(aMessage, ErrorMessage.class);
-                System.out.print(error.getError());
+                System.out.print("\n" + error.getError());
+                System.out.print("\n" + RESET_TEXT_COLOR + "[GAMEPLAY] >>> " + SET_TEXT_COLOR_GREEN);
             }
             case LOAD_GAME ->
             {
-                System.out.println("Loading the game");
                 LoadGameMessage gameMessage = new Gson().fromJson(aMessage, LoadGameMessage.class);
                 mGame = gameMessage.getGame();
                 DrawBoard.drawChessBoard(mColor, mGame.getBoard());
-                System.out.println("Game loaded");
+                System.out.println(SET_TEXT_COLOR_BLUE + mGame.getTeamTurn() + "'s turn");
+                System.out.print("\n" + RESET_TEXT_COLOR + "[GAMEPLAY] >>> " + SET_TEXT_COLOR_GREEN);
 
             }
             case NOTIFICATION ->
             {
                 NotificationMessage notification = new Gson().fromJson(aMessage, NotificationMessage.class);
-                System.out.print(notification.getMessage());
+                System.out.print("\n" + notification.getMessage());
+                System.out.print("\n" + RESET_TEXT_COLOR + "[GAMEPLAY] >>> " + SET_TEXT_COLOR_GREEN);
             }
         }
     }

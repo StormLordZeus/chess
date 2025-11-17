@@ -18,6 +18,7 @@ import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
+import javax.xml.crypto.Data;
 import java.io.IOException;
 
 public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler {
@@ -54,7 +55,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     public void connect(UserGameCommand aAction, String aJson, WsMessageContext aCtx) throws IOException
     {
-        System.out.println("We HAVE arrived in the connect function");
         AuthData auth = authenticate(aAction.getAuthToken());
         if (auth == null)
         {
@@ -62,9 +62,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             return;
         }
 
-        System.out.println("We are fully authenticated");
         UserJoinCommand joinAction = new Gson().fromJson(aJson, UserJoinCommand.class);
-        sessions.addSessionToGame(aAction.getGameID(), aCtx.session);
+        sessions.addSessionToGame(auth.username(), aCtx.session);
 
         String message = auth.username() + " has connected";
         if (joinAction.getColor() != null)
@@ -75,7 +74,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         {
             message += " as an observer\n";
         }
-        System.out.print("Our message is: " + message);
 
         GameData game;
         try
@@ -84,21 +82,18 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         }
         catch (DataAccessException e)
         {
-            sendError(aCtx, "Failed to connect to the SQL database or game does exist");
+            sendError(aCtx, e.getMessage());
             return;
         }
 
-        System.out.println("We are about to send data back to the client");
         LoadGameMessage loadGame = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, game.game());
         aCtx.session.getRemote().sendString(new Gson().toJson(loadGame));
-        System.out.println("Sending a join notification to all other clients!");
         sessions.broadcastMessage(aCtx.session, new NotificationMessage(
                 ServerMessage.ServerMessageType.NOTIFICATION, message));
     }
 
     public void makeMove(UserGameCommand aAction, String aJson, WsMessageContext aCtx) throws IOException
     {
-        System.out.println("We HAVE arrived in the makeMove function");
         AuthData auth = authenticate(aAction.getAuthToken());
         if (auth == null)
         {
@@ -109,28 +104,31 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         MakeMoveCommand moveAction = new Gson().fromJson(aJson, MakeMoveCommand.class);
         try
         {
-            System.out.println("Start position: " + moveAction.getMove().getStartPosition());
-            System.out.println("End position: " + moveAction.getMove().getEndPosition());
-            ChessGame preGameBoard = mGameData.getGame(moveAction.getGameID()).game();
+            GameData preGame = mGameData.getGame(moveAction.getGameID());
+            if (preGame.gameOver())
+            {
+                sendError(aCtx, "Error: Game is over. No moves can be made");
+                return;
+            }
+
+            ChessGame preGameBoard = preGame.game();
             mGameData.updateGame(moveAction.getGameID(), null,null, moveAction.getMove());
             GameData game = mGameData.getGame(moveAction.getGameID());
             ChessGame gameBoard = game.game();
-            System.out.println("The board is: " + gameBoard.getBoard());
 
             ChessPiece piece = preGameBoard.getBoard().getPiece(moveAction.getMove().getStartPosition());
             String message = auth.username() + " has moved a " + piece.getPieceType() + " from " +
                     moveAction.getMove().getStartPosition() + " to " + moveAction.getMove().getEndPosition();
-            sessions.broadcastMessage(aCtx.session, new NotificationMessage(
-                    ServerMessage.ServerMessageType.NOTIFICATION, message));
-
 
             sessions.broadcastMessage(null, new LoadGameMessage(
                     ServerMessage.ServerMessageType.LOAD_GAME, gameBoard));
 
+            sessions.broadcastMessage(aCtx.session, new NotificationMessage(
+                    ServerMessage.ServerMessageType.NOTIFICATION, message));
+
             message = "";
             if (auth.username().equals(game.whiteUsername()))
             {
-                System.out.println("Black's username is " + game.blackUsername());
                 String blackUsername = game.blackUsername() == null ? "Black" : game.blackUsername();
                 if (gameBoard.isInCheckmate(ChessGame.TeamColor.BLACK))
                 {
@@ -176,19 +174,14 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 }
             }
         }
-        catch (DataAccessException e)
+        catch (DataAccessException | InvalidMoveException e)
         {
-            sendError(aCtx, "Error: Failed to connect to the SQL database\n");
-        }
-        catch (InvalidMoveException e) {
-            sendError(aCtx, "Error: Illegal move specified or it is not your turn." +
-                            " Please enter a legal move or wait until it is your turn\n");
+            sendError(aCtx, e.getMessage());
         }
     }
 
     public void leaveGame(UserGameCommand aAction, String aJson, WsMessageContext aCtx) throws IOException
     {
-        System.out.println("We HAVE arrived in the leaveGame function");
         AuthData auth = authenticate(aAction.getAuthToken());
         if (auth == null)
         {
@@ -197,24 +190,17 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         }
 
         UserJoinCommand leaveAction = new Gson().fromJson(aJson, UserJoinCommand.class);
-        System.out.println("The leave action has color: " + leaveAction.getColor() + " and the username is " + auth.username());
         try
         {
             if (leaveAction.getColor() != null)
             {
-                System.out.println("Updating the game to remove the player");
                 mGameData.updateGame(aAction.getGameID(), leaveAction.getColor(), auth.username(), null);
                 GameData game = mGameData.getGame(aAction.getGameID());
-                System.out.println("The players are white: " + game.whiteUsername() + " and black " + game.blackUsername());
             }
         }
-        catch (DataAccessException e)
+        catch (DataAccessException | InvalidMoveException e)
         {
-            sendError(aCtx, "Error: Failed to connect to the SQL database, or bad input\n");
-        }
-        catch (InvalidMoveException e)
-        {
-            sendError(aCtx, "Error: This is impossible to trigger as move is null\n");
+            sendError(aCtx, e.getMessage());
         }
 
         sessions.broadcastMessage(aCtx.session, new NotificationMessage(
@@ -223,11 +209,24 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     public void resign(UserGameCommand aAction, WsMessageContext aCtx) throws IOException
     {
-        System.out.println("We HAVE arrived in the resign function");
         AuthData auth = authenticate(aAction.getAuthToken());
         if (auth == null)
         {
             sendError(aCtx,"Error: User isn't logged in\n");
+            return;
+        }
+
+        try
+        {
+            GameData preGame = mGameData.getGame(aAction.getGameID());
+            if (preGame.gameOver()) {
+                sendError(aCtx, "Error: Game is already over. Game cannot be resigned");
+                return;
+            }
+        }
+        catch (DataAccessException e)
+        {
+            sendError(aCtx, e.getMessage());
             return;
         }
 
@@ -237,10 +236,12 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             GameData game = mGameData.getGame(aAction.getGameID());
             enemy = auth.username().equals(game.whiteUsername()) ? game.blackUsername() : game.whiteUsername();
             enemy = enemy == null ? "White" : game.whiteUsername();
+            mGameData.gameOver(aAction.getGameID());
         }
         catch (DataAccessException e)
         {
-            throw new RuntimeException(e);
+            sendError(aCtx, e.getMessage());
+            return;
         }
 
         String message = auth.username() + " has resigned. " + enemy + " has won the game!\n";

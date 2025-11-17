@@ -212,13 +212,16 @@ public class ChessGame {
         ChessPosition endPos = move.getEndPosition();
         ChessPiece myPiece = mBoard.getPiece(startPos);
         if (myPiece == null) {
-            throw new InvalidMoveException();
+            throw new InvalidMoveException("Error: There is no piece at the specified location");
         }
         TeamColor myColor = myPiece.getTeamColor();
-        if (!this.validMoves(startPos).contains(move) || !(myColor == mTeamTurn))
-        {
-            throw new InvalidMoveException();
+        if (!this.validMoves(startPos).contains(move)) {
+            throw new InvalidMoveException("Error: The specified move is not a legal move");
         }
+        else if (!(myColor == mTeamTurn)) {
+            throw new InvalidMoveException("Error: It is not your turn. You may not make a move");
+        }
+
         if (myPiece.getPieceType() == ChessPiece.PieceType.KING) {
             mEnPassantPos = null;
 

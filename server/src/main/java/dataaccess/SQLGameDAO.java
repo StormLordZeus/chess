@@ -35,9 +35,9 @@ public class SQLGameDAO implements GameDAO
                     {
                         throw new AlreadyTakenException("Error: Game name already taken");
                     }
-                    sql = "INSERT INTO GameData (whiteUsername, blackUsername, gameName, game) Values (?, ?, ?, ?)";
-                    int id = DatabaseManager.executeUpdate(sql, null, null, gameName, new Gson().toJson(new ChessGame()));
-                    return new GameData(id, null, null, gameName, new ChessGame());
+                    sql = "INSERT INTO GameData (whiteUsername, blackUsername, gameName, game, gameOver) Values (?, ?, ?, ?, ?)";
+                    int id = DatabaseManager.executeUpdate(sql, null, null, gameName, new Gson().toJson(new ChessGame()), 0);
+                    return new GameData(id, null, null, gameName, new ChessGame(), false);
                 }
 
             }
@@ -66,7 +66,8 @@ public class SQLGameDAO implements GameDAO
                                 rs.getString("whiteUsername"),
                                 rs.getString("blackUsername"),
                                 rs.getString("gameName"),
-                                game);
+                                game,
+                                rs.getBoolean("gameOver"));
                     }
                     else
                     {
@@ -148,20 +149,22 @@ public class SQLGameDAO implements GameDAO
                 DatabaseManager.executeUpdate(sql, username, gameID);
                 return;
             }
-            System.out.println("I made it past both ifs");
         }
         else if (move != null)
         {
             game.game().makeMove(move);
-            System.out.println("The start and end positions were " + move.getStartPosition() + move.getEndPosition());
-            System.out.println("Move has been made. The new board is: " + game.game().getBoard());
             String sql = "UPDATE GameData SET game = ? WHERE gameID = ?";
             DatabaseManager.executeUpdate(sql, new Gson().toJson(game.game()) ,gameID);
-            GameData game1 = getGame(game.gameID());
-            System.out.println("Database has been updated. The new board is: " + game1.game().getBoard());
             return;
         }
         throw new BadMessageException("Error: No player or move specified to update");
+    }
+
+    public void gameOver(int gameID) throws DataAccessException
+    {
+        String sql = "UPDATE GameData SET gameOver = ? WHERE gameID = ?";
+        System.out.println("Ending game with ID " + gameID);
+        DatabaseManager.executeUpdate(sql, 1, gameID);
     }
 
     @Override

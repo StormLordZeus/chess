@@ -9,11 +9,11 @@ import java.util.*;
 
 public class WebSocketSessions
 {
-    public final Map<Integer, Session> connections = new HashMap<>();
+    public final Map<String, Session> connections = new HashMap<>();
 
-    public void addSessionToGame(int aGameID, Session aSession)
+    public void addSessionToGame(String aUsername, Session aSession)
     {
-        connections.put(aGameID, aSession);
+        connections.put(aUsername, aSession);
     }
 
     public void removeSessionFromGame(Session session)

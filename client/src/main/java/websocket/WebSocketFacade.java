@@ -26,7 +26,6 @@ public class WebSocketFacade extends Endpoint {
     @Override
     public void onOpen(Session session, EndpointConfig config)
     {
-        System.out.println("Client connected!");
         this.mSession = session;
         session.addMessageHandler(new MessageHandler.Whole<String>() {
             @Override
@@ -34,18 +33,14 @@ public class WebSocketFacade extends Endpoint {
                 mHandler.printMessage(message);
             }
         });
-        System.out.println("Handler is connected!");
     }
 
     public void connect(String aAuthToken, int aGameID, String aColor) throws ResponseException
     {
         try
         {
-            System.out.println("Websocket connection has begun");
             UserJoinCommand connect = new UserJoinCommand(UserGameCommand.CommandType.CONNECT, aAuthToken, aGameID, aColor);
-            System.out.println("Sending the connect message via the basic remote");
             mSession.getBasicRemote().sendText(new Gson().toJson(connect));
-            System.out.println("Message to server finished sending!");
         }
         catch (IOException e)
         {

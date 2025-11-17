@@ -139,6 +139,8 @@ public class PostLoginClient
             mNumToIDs.put(gameNum, game.gameID());
             games += String.format("%d: %s\nWhite Player: %s\nBlack Player: %s\n", gameNum,
                 game.gameName(), game.whiteUsername(), game.blackUsername());
+            games += game.gameOver() ? "Game is over\n" : "Game is running\n";
+            games += (gameNum != aGames.size()) ? "-----------------------------------\n" : "";
             gameNum++;
         }
         games += "***********************************\n";
