@@ -153,8 +153,12 @@ public class SQLGameDAO implements GameDAO
         else if (move != null)
         {
             game.game().makeMove(move);
+            System.out.println("The start and end positions were " + move.getStartPosition() + move.getEndPosition());
+            System.out.println("Move has been made. The new board is: " + game.game().getBoard());
             String sql = "UPDATE GameData SET game = ? WHERE gameID = ?";
-            DatabaseManager.executeUpdate(sql, new Gson().toJson(game) ,gameID);
+            DatabaseManager.executeUpdate(sql, new Gson().toJson(game.game()) ,gameID);
+            GameData game1 = getGame(game.gameID());
+            System.out.println("Database has been updated. The new board is: " + game1.game().getBoard());
             return;
         }
         throw new BadMessageException("Error: No player or move specified to update");

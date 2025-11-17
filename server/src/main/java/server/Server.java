@@ -6,7 +6,6 @@ import dataaccess.*;
 import io.javalin.*;
 import io.javalin.http.Context;
 import io.javalin.http.UnauthorizedResponse;
-import io.javalin.websocket.WsContext;
 import model.*;
 import org.eclipse.jetty.http.BadMessageException;
 import service.GameService;

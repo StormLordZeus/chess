@@ -27,6 +27,7 @@ public class ReplLoop implements GameHandler {
     private final String mUrl;
     private String mAuthToken;
     private ChessGame mGame;
+    private String mColor;
 
     public ReplLoop (String aUrl)
     {
@@ -96,7 +97,8 @@ public class ReplLoop implements GameHandler {
                 if (action.equals("join") || action.equals("observe"))
                 {
                     System.out.println();
-                    gameplayLoop(mPostResult.get(2), mPostResult.getLast());
+                    mColor = mPostResult.get(2);
+                    gameplayLoop(mPostResult.getLast());
                     if (!mPostResult.getFirst().equals("quit"))
                     {
                         System.out.println(mPostLogClient.help());
@@ -119,7 +121,7 @@ public class ReplLoop implements GameHandler {
         System.out.println();
     }
 
-    private void gameplayLoop(String aColor, String aGameID) throws ResponseException, InterruptedException {
+    private void gameplayLoop(String aGameID) throws ResponseException, InterruptedException {
         WebSocketFacade mWebFacade;
         try
         {
@@ -136,14 +138,10 @@ public class ReplLoop implements GameHandler {
         int gameID = Integer.parseInt(aGameID);
         System.out.print(mGameClient.help());
         System.out.println("Connecting to the WEBSOCKET!!!!");
-        mWebFacade.connect(mAuthToken, gameID, aColor);
+        mWebFacade.connect(mAuthToken, gameID, mColor);
 
         List<String> gameResult = new ArrayList<>();
         gameResult.add("");
-        while (mGame == null) {
-            Thread.sleep(10);
-        }
-        DrawBoard.drawChessBoard(aColor, mGame.getBoard());
         while (!gameResult.getFirst().equals("leave"))
         {
             System.out.print("\n" + RESET_TEXT_COLOR + "[GAMEPLAY] >>> " + SET_TEXT_COLOR_GREEN);
@@ -155,13 +153,15 @@ public class ReplLoop implements GameHandler {
                 System.out.println(SET_TEXT_COLOR_BLUE + gameResult.get(1));
                 String action = gameResult.getFirst();
                 switch (action) {
-                    case "redraw" -> DrawBoard.drawChessBoard(aColor, mGame.getBoard());
+                    case "redraw" -> DrawBoard.drawChessBoard(mColor, mGame.getBoard());
                     case "move" -> {
                         String moveString = gameResult.getLast();
-                        ChessPosition start = new ChessPosition(moveString.charAt(1), moveString.charAt(0));
-                        ChessPosition end = new ChessPosition(moveString.charAt(3), moveString.charAt(2));
-                        ChessPiece.PieceType promotion = getPieceType(moveString.charAt(5));
-                        ChessMove move = new ChessMove(start, end, promotion);
+                        ChessPosition start = new ChessPosition(moveString.charAt(1) - '0',
+                                (moveString.charAt(0) - 'a') + 1);
+                        ChessPosition end = new ChessPosition(moveString.charAt(3) - '0',
+                                (moveString.charAt(2) - 'a') + 1);
+                        //ChessPiece.PieceType promotion = getPieceType(moveString.charAt(5));
+                        ChessMove move = new ChessMove(start, end, null);
                         mWebFacade.makeMove(mAuthToken, gameID, move);
                     }
                     case "resign" -> {
@@ -178,7 +178,7 @@ public class ReplLoop implements GameHandler {
                 System.out.print(msg);
             }
         }
-        mWebFacade.leaveGame(mAuthToken, gameID, aColor);
+        mWebFacade.leaveGame(mAuthToken, gameID, mColor);
         System.out.println();
     }
 
@@ -215,6 +215,7 @@ public class ReplLoop implements GameHandler {
     {
         System.out.println("A message from the server has been received!");
         ServerMessage messageParent = new Gson().fromJson(aMessage, ServerMessage.class);
+        System.out.println("The message type is: " + messageParent.getServerMessageType());
         switch (messageParent.getServerMessageType())
         {
             case ERROR ->
@@ -227,6 +228,7 @@ public class ReplLoop implements GameHandler {
                 System.out.println("Loading the game");
                 LoadGameMessage gameMessage = new Gson().fromJson(aMessage, LoadGameMessage.class);
                 mGame = gameMessage.getGame();
+                DrawBoard.drawChessBoard(mColor, mGame.getBoard());
                 System.out.println("Game loaded");
 
             }

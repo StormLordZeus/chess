@@ -10,11 +10,10 @@ import websocket.commands.UserJoinCommand;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 
 public class WebSocketFacade extends Endpoint {
     private Session mSession;
-    private GameHandler mHandler;
+    private final GameHandler mHandler;
 
     public WebSocketFacade(String url, GameHandler handler) throws Exception
     {
@@ -73,6 +72,10 @@ public class WebSocketFacade extends Endpoint {
         {
             UserJoinCommand leave = new UserJoinCommand(UserGameCommand.CommandType.LEAVE, aAuthToken, aGameID, aColor);
             mSession.getBasicRemote().sendText(new Gson().toJson(leave));
+            if (mSession != null && mSession.isOpen())
+            {
+                mSession.close();
+            }
         }
         catch (IOException e)
         {
