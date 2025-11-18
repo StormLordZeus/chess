@@ -121,12 +121,6 @@ public class SQLGameDAO implements GameDAO
             {
                 if (game.whiteUsername() != null)
                 {
-                    if (username.equals(game.whiteUsername()))
-                    {
-                        String sql = "UPDATE GameData SET whiteUsername = ? WHERE gameID = ?";
-                        DatabaseManager.executeUpdate(sql, null, gameID);
-                        return;
-                    }
                     throw new AlreadyTakenException("Error: White Player already taken");
                 }
                 String sql = "UPDATE GameData SET whiteUsername = ? WHERE gameID = ?";
@@ -137,12 +131,6 @@ public class SQLGameDAO implements GameDAO
             {
                 if (game.blackUsername() != null)
                 {
-                    if (username.equals(game.blackUsername()))
-                    {
-                        String sql = "UPDATE GameData SET blackUsername = ? WHERE gameID = ?";
-                        DatabaseManager.executeUpdate(sql, null, gameID);
-                        return;
-                    }
                     throw new AlreadyTakenException("Error: Black Player already taken");
                 }
                 String sql = "UPDATE GameData SET blackUsername = ? WHERE gameID = ?";
@@ -158,6 +146,24 @@ public class SQLGameDAO implements GameDAO
             return;
         }
         throw new BadMessageException("Error: No player or move specified to update");
+    }
+
+    public void leaveGame(int gameID, String color) throws DataAccessException
+    {
+        GameData game = getGame(gameID);
+        if (color != null)
+        {
+            if (color.equals("BLACK"))
+            {
+                String sql = "UPDATE GameData SET blackUsername = ? WHERE gameID = ?";
+                DatabaseManager.executeUpdate(sql, null, gameID);
+            }
+            else if (color.equals("WHITE"))
+            {
+                String sql = "UPDATE GameData SET whiteUsername = ? WHERE gameID = ?";
+                DatabaseManager.executeUpdate(sql, null, gameID);
+            }
+        }
     }
 
     public void gameOver(int gameID) throws DataAccessException

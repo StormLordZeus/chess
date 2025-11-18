@@ -14,4 +14,5 @@ public interface GameDAO {
             throws DataAccessException, InvalidMoveException;
     void gameOver(int gameID) throws DataAccessException;
     void clearGames() throws DataAccessException;
+    void leaveGame(int gameID, String color) throws DataAccessException;
 }

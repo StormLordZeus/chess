@@ -2,15 +2,15 @@ package websocket.messages;
 
 public class ErrorMessage extends ServerMessage
 {
-    String mError;
+    String errorMessage;
     public ErrorMessage(ServerMessageType type, String aError)
     {
         super(type);
-        mError = aError;
+        errorMessage = aError;
     }
 
     public String getError()
     {
-        return mError;
+        return errorMessage;
     }
 }

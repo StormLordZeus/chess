@@ -4,15 +4,15 @@ import chess.ChessGame;
 
 public class LoadGameMessage extends ServerMessage
 {
-    ChessGame mGame;
+    ChessGame game;
     public LoadGameMessage(ServerMessageType type, ChessGame aGame)
     {
         super(type);
-        mGame = aGame;
+        game = aGame;
     }
 
     public ChessGame getGame()
     {
-        return mGame;
+        return game;
     }
 }

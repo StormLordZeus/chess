@@ -91,4 +91,9 @@ public class MemoryGameDAO implements GameDAO
     {
         GAMES.clear();
     }
+
+    @Override
+    public void leaveGame(int gameID, String color) {
+
+    }
 }

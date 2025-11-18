@@ -4,6 +4,7 @@ import chess.InvalidMoveException;
 import dataaccess.*;
 import io.javalin.http.UnauthorizedResponse;
 import model.*;
+import org.eclipse.jetty.http.BadMessageException;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.*;
 
@@ -74,8 +75,8 @@ class GameServiceTest {
     @Order (5)
     void joinGameFailure()
     {
-        JoinGameRequest requestTest = new JoinGameRequest(1,"WHITE",mAuthToken);
-        assertThrows(AlreadyTakenException.class, () -> mTester.joinGame(requestTest));
+        JoinGameRequest requestTest = new JoinGameRequest(1,"BLUE",mAuthToken);
+        assertThrows(BadMessageException.class, () -> mTester.joinGame(requestTest));
     }
 
     @Test

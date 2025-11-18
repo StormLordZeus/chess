@@ -136,7 +136,7 @@ public class ReplLoop implements GameHandler {
         }
         catch (ResponseException e)
         {
-            System.out.println("Failed to establish a websocket connection. Exiting gameplay loop");
+            System.out.println("Error: Failed to establish a websocket connection. Exiting gameplay loop");
             return;
         } catch (Exception e)
         {
@@ -175,12 +175,21 @@ public class ReplLoop implements GameHandler {
                         String moveString = gameResult.getLast();
                         ChessPosition start = new ChessPosition(moveString.charAt(1) - '0',
                                 (moveString.charAt(0) - 'a') + 1);
-                        ChessPosition end = new ChessPosition(moveString.charAt(3) - '0',
-                                (moveString.charAt(2) - 'a') + 1);
-                        ChessPiece.PieceType promotion = getPromotionType(start, end);
 
-                        ChessMove move = new ChessMove(start, end, promotion);
-                        mWebFacade.makeMove(mAuthToken, gameID, move);
+                        ChessPiece piece = mGame.getBoard().getPiece(start);
+                        if (!piece.getTeamColor().toString().equals(mColor))
+                        {
+                            System.out.println("Error: You cannot make moves for the other player");
+                        }
+                        else
+                        {
+                            ChessPosition end = new ChessPosition(moveString.charAt(3) - '0',
+                                    (moveString.charAt(2) - 'a') + 1);
+                            ChessPiece.PieceType promotion = getPromotionType(start, end);
+
+                            ChessMove move = new ChessMove(start, end, promotion);
+                            mWebFacade.makeMove(mAuthToken, gameID, move);
+                        }
                     }
                     case "highlight" ->
                     {

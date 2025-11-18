@@ -9,31 +9,37 @@ import java.util.*;
 
 public class WebSocketSessions
 {
-    public final Map<String, Session> connections = new HashMap<>();
+    private final Map<Integer, Map<String, Session>> connections = new HashMap<>();
 
-    public void addSessionToGame(String aUsername, Session aSession)
-    {
-        connections.put(aUsername, aSession);
+    public void addSessionToGame(int gameID, String username, Session session) {
+        connections
+                .computeIfAbsent(gameID, g -> new HashMap<>())
+                .put(username, session);
     }
 
-    public void removeSessionFromGame(Session session)
-    {
-        connections.entrySet().removeIf(entry -> entry.getValue().equals(session));
-    }
-
-    public void broadcastMessage(Session excludeSession, ServerMessage message) throws IOException
-    {
-
-        for (Session con : connections.values())
-        {
-            if (con.isOpen())
-            {
-                if (!con.equals(excludeSession))
-                {
-                    con.getRemote().sendString(new Gson().toJson(message));
+    public void removeSession(Session session) {
+        for (Map<String, Session> userMap : connections.values()) {
+            Iterator<Map.Entry<String, Session>> userMapIterator = userMap.entrySet().iterator();
+            while (userMapIterator.hasNext()) {
+                if (userMapIterator.next().getValue().equals(session)) {
+                    userMapIterator.remove();
                 }
             }
         }
-        System.out.println("Message has been broadcast");
+    }
+
+    public void broadcastToGame(int gameID, Session excludeSession, ServerMessage message) throws IOException {
+        Map<String, Session> userMap = connections.get(gameID);
+        if (userMap == null) return; // no players in this game
+
+        String json = new Gson().toJson(message);
+
+        for (Session session : userMap.values()) {
+            if (session.isOpen() && !session.equals(excludeSession)) {
+                session.getRemote().sendString(json);
+            }
+        }
+
+        System.out.println("Broadcast to game " + gameID + " complete.");
     }
 }
