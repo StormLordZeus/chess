@@ -16,6 +16,8 @@ import websocket.messages.ServerMessage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+
+import static chess.ChessPiece.PieceType.PAWN;
 import static ui.EscapeSequences.*;
 
 public class ReplLoop implements GameHandler {
@@ -28,6 +30,7 @@ public class ReplLoop implements GameHandler {
     private String mAuthToken;
     private ChessGame mGame;
     private String mColor;
+    private boolean mObserve;
 
     public ReplLoop (String aUrl)
     {
@@ -96,6 +99,10 @@ public class ReplLoop implements GameHandler {
                 String action = mPostResult.getFirst();
                 if (action.equals("join") || action.equals("observe"))
                 {
+                    if (action.equals("observe"))
+                    {
+                        mObserve = true;
+                    }
                     System.out.println();
                     mColor = mPostResult.get(2);
                     gameplayLoop(mPostResult.getLast());
@@ -137,7 +144,14 @@ public class ReplLoop implements GameHandler {
         }
         int gameID = Integer.parseInt(aGameID);
         System.out.print(mGameClient.help());
-        mWebFacade.connect(mAuthToken, gameID, mColor);
+        if (mObserve)
+        {
+            mWebFacade.connect(mAuthToken, gameID, null);
+        }
+        else
+        {
+            mWebFacade.connect(mAuthToken, gameID, mColor);
+        }
 
         List<String> gameResult = new ArrayList<>();
         gameResult.add("");
@@ -151,10 +165,21 @@ public class ReplLoop implements GameHandler {
                 System.out.println(SET_TEXT_COLOR_BLUE + gameResult.get(1));
                 String action = gameResult.getFirst();
                 switch (action) {
-                    case "redraw" -> DrawBoard.drawChessBoard(mColor, mGame.getBoard());
+                    case "redraw" ->
+                    {
+                        DrawBoard.drawChessBoard(mColor, mGame.getBoard());
+                        System.out.println(SET_TEXT_COLOR_BLUE + mGame.getTeamTurn() + "'s turn");
+                    }
                     case "move" ->
                     {
-                        ChessMove move = getChessMove(gameResult.getLast());
+                        String moveString = gameResult.getLast();
+                        ChessPosition start = new ChessPosition(moveString.charAt(1) - '0',
+                                (moveString.charAt(0) - 'a') + 1);
+                        ChessPosition end = new ChessPosition(moveString.charAt(3) - '0',
+                                (moveString.charAt(2) - 'a') + 1);
+                        ChessPiece.PieceType promotion = getPromotionType(start, end);
+
+                        ChessMove move = new ChessMove(start, end, promotion);
                         mWebFacade.makeMove(mAuthToken, gameID, move);
                     }
                     case "highlight" ->
@@ -189,39 +214,53 @@ public class ReplLoop implements GameHandler {
         System.out.println();
     }
 
-    private static ChessMove getChessMove(String moveString) {
-        ChessPosition start = new ChessPosition(moveString.charAt(1) - '0',
-                (moveString.charAt(0) - 'a') + 1);
-        ChessPosition end = new ChessPosition(moveString.charAt(3) - '0',
-                (moveString.charAt(2) - 'a') + 1);
-        //ChessPiece.PieceType promotion = getPieceType(moveString.charAt(5));
-        return new ChessMove(start, end, null);
-    }
 
-    private static ChessPiece.PieceType getPieceType(char promoType) {
-        ChessPiece.PieceType promotion = null;
-        switch (promoType)
+    private ChessPiece.PieceType getPromotionType(ChessPosition aStart, ChessPosition aEnd) {
+        String line = "";
+        if (mGame.getBoard().getPiece(aStart).getPieceType() == PAWN)
         {
-            case 'B':
+            if ((mColor.equals("BLACK") && aEnd.getRow() == 1) ||(mColor.equals("WHITE") && aEnd.getRow() == 8))
             {
-                promotion = ChessPiece.PieceType.BISHOP;
-                break;
+                System.out.println("What piece would you like to promote to? [Q|R|B|N]");
             }
-            case 'Q':
+            else
             {
-                promotion = ChessPiece.PieceType.QUEEN;
-                break;
+                return null;
             }
-            case 'R':
-            {
-                promotion = ChessPiece.PieceType.ROOK;
-                break;
+        }
+        else
+        {
+            return null;
+        }
+
+        ChessPiece.PieceType promotion = null;
+        while (promotion == null) {
+            line = mScanner.nextLine().toLowerCase();
+
+            switch (line.toLowerCase()) {
+                case "b": {
+                    promotion = ChessPiece.PieceType.BISHOP;
+                    break;
+                }
+                case "q": {
+                    promotion = ChessPiece.PieceType.QUEEN;
+                    break;
+                }
+                case "r": {
+                    promotion = ChessPiece.PieceType.ROOK;
+                    break;
+                }
+                case "n": {
+                    promotion = ChessPiece.PieceType.KNIGHT;
+                    break;
+                }
+                default:
+                {
+                    System.out.println("Please enter a valid piece type. [Q|R|B|N]");
+                    break;
+                }
             }
-            case 'N':
-            {
-                promotion = ChessPiece.PieceType.KNIGHT;
-                break;
-            }
+
         }
         return promotion;
     }
@@ -254,11 +293,5 @@ public class ReplLoop implements GameHandler {
                 System.out.print("\n" + RESET_TEXT_COLOR + "[GAMEPLAY] >>> " + SET_TEXT_COLOR_GREEN);
             }
         }
-    }
-
-    @Override
-    public void updateGame(int aGameID)
-    {
-
     }
 }

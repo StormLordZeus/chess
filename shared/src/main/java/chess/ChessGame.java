@@ -48,38 +48,6 @@ public class ChessGame {
         mTeamTurn = team;
     }
 
-    public boolean getBlackCastleLeft() {
-        return mBlackCastleLeft;
-    }
-
-    public void setBlackCastleLeft(boolean blackCastleLeft) {
-        mBlackCastleLeft = blackCastleLeft;
-    }
-
-    public boolean getBlackCastleRight() {
-        return mBlackCastleRight;
-    }
-
-    public void setBlackCastleRight(boolean blackCastleRight) {
-        mBlackCastleRight = blackCastleRight;
-    }
-
-    public boolean getWhiteCastleLeft() {
-        return mWhiteCastleLeft;
-    }
-
-    public void setWhiteCastleLeft(boolean whiteCastleLeft) {
-        this.mWhiteCastleLeft = whiteCastleLeft;
-    }
-
-    public boolean getWhiteCastleRight() {
-        return mWhiteCastleRight;
-    }
-
-    public void setWhiteCastleRight(boolean whiteCastleRight) {
-        this.mWhiteCastleRight = whiteCastleRight;
-    }
-
     /**
      * Enum identifying the 2 possible teams in a chess game
      */

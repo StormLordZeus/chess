@@ -18,7 +18,6 @@ import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
-import javax.xml.crypto.Data;
 import java.io.IOException;
 
 public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler {
@@ -119,6 +118,10 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             ChessPiece piece = preGameBoard.getBoard().getPiece(moveAction.getMove().getStartPosition());
             String message = auth.username() + " has moved a " + piece.getPieceType() + " from " +
                     moveAction.getMove().getStartPosition() + " to " + moveAction.getMove().getEndPosition();
+            if (moveAction.getMove().getPromotionPiece() != null)
+            {
+                message += " and promoted it to a " + moveAction.getMove().getPromotionPiece();
+            }
 
             sessions.broadcastMessage(null, new LoadGameMessage(
                     ServerMessage.ServerMessageType.LOAD_GAME, gameBoard));
@@ -134,16 +137,19 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 {
                     message = blackUsername + " has been checkmated. " +
                             game.whiteUsername() + " has won the game!\n";
+                    mGameData.gameOver(aAction.getGameID());
                 }
                 else if (gameBoard.isInStalemate(ChessGame.TeamColor.BLACK))
                 {
                     message = blackUsername + " has been stalemated. " +
                             game.whiteUsername() + " has won the game!\n";
+                    mGameData.gameOver(aAction.getGameID());
                 }
                 else if (gameBoard.isInCheck(ChessGame.TeamColor.BLACK))
                 {
                     message = blackUsername + " is in check.";
                 }
+
                 if (!message.isEmpty())
                 {
                     sessions.broadcastMessage(null, new NotificationMessage(
@@ -157,11 +163,13 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 {
                     message = whiteUsername + " has been checkmated. " +
                             game.blackUsername() + " has won the game!\n";
+                    mGameData.gameOver(aAction.getGameID());
                 }
                 else if (gameBoard.isInStalemate(ChessGame.TeamColor.WHITE))
                 {
                     message = whiteUsername + " has been stalemated. " +
                             game.blackUsername() + " has won the game!\n";
+                    mGameData.gameOver(aAction.getGameID());
                 }
                 else if (gameBoard.isInCheck(ChessGame.TeamColor.WHITE))
                 {
@@ -195,7 +203,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             if (leaveAction.getColor() != null)
             {
                 mGameData.updateGame(aAction.getGameID(), leaveAction.getColor(), auth.username(), null);
-                GameData game = mGameData.getGame(aAction.getGameID());
             }
         }
         catch (DataAccessException | InvalidMoveException e)
@@ -234,8 +241,16 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         try
         {
             GameData game = mGameData.getGame(aAction.getGameID());
-            enemy = auth.username().equals(game.whiteUsername()) ? game.blackUsername() : game.whiteUsername();
-            enemy = enemy == null ? "White" : game.whiteUsername();
+            if (auth.username().equals(game.whiteUsername()))
+            {
+                enemy = game.blackUsername();
+                enemy = enemy == null ? "Black" : enemy;
+            }
+            else
+            {
+                enemy = game.whiteUsername();
+                enemy = enemy == null ? "White" : enemy;
+            }
             mGameData.gameOver(aAction.getGameID());
         }
         catch (DataAccessException e)
