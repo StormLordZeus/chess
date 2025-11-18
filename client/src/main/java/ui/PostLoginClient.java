@@ -61,16 +61,15 @@ public class PostLoginClient
                 }
                 case "3", "join" ->
                 {
-                    if (params.length == 2)
+                    Integer gameID = parseGameID(params[0]);
+                    if (params.length == 2 && gameID == null) {
+                        return new ArrayList<>(List.of(
+                                "help",
+                                "Didn't enter a valid game ID. Must be a number corresponding to an existing game\n" + help()
+                        ));
+                    }
+                    else if (params.length == 2)
                     {
-                        Integer gameID = parseGameID(params[0]);
-                        if (gameID == null) {
-                            return new ArrayList<>(List.of(
-                                    "help",
-                                    "Didn't enter a valid game ID. Must be a number corresponding to an existing game\n" + help()
-                            ));
-                        }
-
                         mFacade.joinGame(new JoinGameRequest(gameID,
                                 params[1].toUpperCase(), aAuthtoken));
                         return new ArrayList<>(List.of(
@@ -82,16 +81,15 @@ public class PostLoginClient
                 }
                 case "4", "observe" ->
                 {
-                    if (params.length == 1)
+                    Integer gameID = parseGameID(params[0]);
+                    if (params.length == 1 && gameID == null) {
+                        return new ArrayList<>(List.of(
+                                "help",
+                                "Didn't enter a valid game ID. Must be a number corresponding to an existing game\n" + help()
+                        ));
+                    }
+                    else if (params.length == 1)
                     {
-                        Integer gameID = parseGameID(params[0]);
-                        if (gameID == null) {
-                            return new ArrayList<>(List.of(
-                                    "help",
-                                    "Didn't enter a valid game ID. Must be a number corresponding to an existing game\n" + help()
-                            ));
-                        }
-
                         return new ArrayList<>(List.of(
                                 "observe",
                                 "Observing game...",

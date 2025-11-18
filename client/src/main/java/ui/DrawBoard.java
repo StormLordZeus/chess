@@ -12,7 +12,7 @@ import static ui.EscapeSequences.*;
 
 public class DrawBoard
 {
-    private static final List<ChessPosition> mHighlights = new ArrayList<>();
+    private static final List<ChessPosition> M_HIGH_LIGHTS = new ArrayList<>();
     private static ChessPosition mPieceHighlight;
 
     static void drawChessBoard(String aColor, ChessBoard aBoard)
@@ -62,7 +62,7 @@ public class DrawBoard
         out.print(SET_BG_COLOR_BLACK);
         out.print(SET_TEXT_COLOR_WHITE);
         mPieceHighlight = null;
-        mHighlights.clear();
+        M_HIGH_LIGHTS.clear();
     }
 
     public static void highlightSquares(ChessGame aGame, ChessPosition pieceLocation)
@@ -71,7 +71,7 @@ public class DrawBoard
         Collection<ChessMove> moves = aGame.validMoves(pieceLocation);
         for (ChessMove move : moves)
         {
-            mHighlights.add(move.getEndPosition());
+            M_HIGH_LIGHTS.add(move.getEndPosition());
         }
     }
 
@@ -101,7 +101,7 @@ public class DrawBoard
         {
             aOut.print(SET_BG_COLOR_GREEN + pieceString);
         }
-        else if (mHighlights.contains(position))
+        else if (M_HIGH_LIGHTS.contains(position))
         {
             if ((aX + aY) % 2 == 0)
             {

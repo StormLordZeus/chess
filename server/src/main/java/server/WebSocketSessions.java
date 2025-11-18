@@ -11,31 +11,42 @@ public class WebSocketSessions
 {
     private final Map<Integer, Map<String, Session>> connections = new HashMap<>();
 
-    public void addSessionToGame(int gameID, String username, Session session) {
+    public void addSessionToGame(int gameID, String username, Session session)
+    {
         connections
                 .computeIfAbsent(gameID, myHash -> new HashMap<>())
                 .put(username, session);
     }
 
-    public void removeSession(Session session) {
-        for (Map<String, Session> userMap : connections.values()) {
+    public void removeSession(Session session)
+    {
+        for (Map<String, Session> userMap : connections.values())
+        {
             Iterator<Map.Entry<String, Session>> userMapIterator = userMap.entrySet().iterator();
-            while (userMapIterator.hasNext()) {
-                if (userMapIterator.next().getValue().equals(session)) {
+            while (userMapIterator.hasNext())
+            {
+                if (userMapIterator.next().getValue().equals(session))
+                {
                     userMapIterator.remove();
                 }
             }
         }
     }
 
-    public void broadcastToGame(int gameID, Session excludeSession, ServerMessage message) throws IOException {
+    public void broadcastToGame(int gameID, Session excludeSession, ServerMessage message) throws IOException
+    {
         Map<String, Session> userMap = connections.get(gameID);
-        if (userMap == null) return; // no players in this game
+        if (userMap == null)
+        {
+            return;
+        }
 
         String json = new Gson().toJson(message);
 
-        for (Session session : userMap.values()) {
-            if (session.isOpen() && !session.equals(excludeSession)) {
+        for (Session session : userMap.values())
+        {
+            if (session.isOpen() && !session.equals(excludeSession))
+            {
                 session.getRemote().sendString(json);
             }
         }

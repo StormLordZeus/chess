@@ -129,10 +129,10 @@ public class ReplLoop implements GameHandler {
     }
 
     private void gameplayLoop(String aGameID) throws ResponseException {
-        WebSocketFacade mWebFacade;
+        WebSocketFacade webFacade;
         try
         {
-            mWebFacade = new WebSocketFacade(mUrl, this);
+            webFacade = new WebSocketFacade(mUrl, this);
         }
         catch (ResponseException e)
         {
@@ -146,11 +146,11 @@ public class ReplLoop implements GameHandler {
         System.out.print(mGameClient.help());
         if (mObserve)
         {
-            mWebFacade.connect(mAuthToken, gameID, null);
+            webFacade.connect(mAuthToken, gameID, null);
         }
         else
         {
-            mWebFacade.connect(mAuthToken, gameID, mColor);
+            webFacade.connect(mAuthToken, gameID, mColor);
         }
 
         List<String> gameResult = new ArrayList<>();
@@ -173,23 +173,7 @@ public class ReplLoop implements GameHandler {
                     case "move" ->
                     {
                         String moveString = gameResult.getLast();
-                        ChessPosition start = new ChessPosition(moveString.charAt(1) - '0',
-                                (moveString.charAt(0) - 'a') + 1);
-
-                        ChessPiece piece = mGame.getBoard().getPiece(start);
-                        if (!piece.getTeamColor().toString().equals(mColor))
-                        {
-                            System.out.println("Error: You cannot make moves for the other player");
-                        }
-                        else
-                        {
-                            ChessPosition end = new ChessPosition(moveString.charAt(3) - '0',
-                                    (moveString.charAt(2) - 'a') + 1);
-                            ChessPiece.PieceType promotion = getPromotionType(start, end);
-
-                            ChessMove move = new ChessMove(start, end, promotion);
-                            mWebFacade.makeMove(mAuthToken, gameID, move);
-                        }
+                        makeMove(moveString, webFacade, gameID);
                     }
                     case "highlight" ->
                     {
@@ -201,11 +185,7 @@ public class ReplLoop implements GameHandler {
                     }
                     case "resign" ->
                     {
-                        line = mScanner.nextLine().toLowerCase();
-                        if (line.equals("yes"))
-                        {
-                            mWebFacade.resignGame(mAuthToken, gameID);
-                        }
+                        resignGame(webFacade, gameID);
                     }
                 }
                 if (!action.equals("resign"))
@@ -219,8 +199,39 @@ public class ReplLoop implements GameHandler {
                 System.out.print(msg);
             }
         }
-        mWebFacade.leaveGame(mAuthToken, gameID, mColor);
+        webFacade.leaveGame(mAuthToken, gameID, mColor);
         System.out.println();
+    }
+
+    public void makeMove(String aMoveString, WebSocketFacade aWebFacade, int aGameID) throws ResponseException
+    {
+
+        ChessPosition start = new ChessPosition(aMoveString.charAt(1) - '0',
+                (aMoveString.charAt(0) - 'a') + 1);
+
+        ChessPiece piece = mGame.getBoard().getPiece(start);
+        if (!piece.getTeamColor().toString().equals(mColor))
+        {
+            System.out.println("Error: You cannot make moves for the other player");
+        }
+        else
+        {
+            ChessPosition end = new ChessPosition(aMoveString.charAt(3) - '0',
+                    (aMoveString.charAt(2) - 'a') + 1);
+            ChessPiece.PieceType promotion = getPromotionType(start, end);
+
+            ChessMove move = new ChessMove(start, end, promotion);
+            aWebFacade.makeMove(mAuthToken, aGameID, move);
+        }
+    }
+
+    public void resignGame(WebSocketFacade aWebFacade, int aGameID) throws ResponseException
+    {
+        String line = mScanner.nextLine().toLowerCase();
+        if (line.equals("yes"))
+        {
+            aWebFacade.resignGame(mAuthToken, aGameID);
+        }
     }
 
 
