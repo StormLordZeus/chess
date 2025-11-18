@@ -48,8 +48,9 @@ public class GameplayClient
                 {
                     if (params[0].length() != 4)
                     {
-                        return new ArrayList<>(List.of("help", "Error: Move had too many or too few characters." +
-                                " Valid moves have 4 characters"));
+                        return new ArrayList<>(List.of(
+                                "help",
+                                "Error: Move had too many or too few characters. Valid moves have 4 characters"));
                     }
                     if (!params[0].matches("^[a-h][1-8][a-h][1-8]$"))
                     {
