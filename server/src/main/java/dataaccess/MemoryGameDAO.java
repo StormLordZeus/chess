@@ -21,7 +21,7 @@ public class MemoryGameDAO implements GameDAO
                 throw new AlreadyTakenException("Error: Game name already taken");
             }
         }
-        GameData newGame = new GameData(gameIDCounter, null, null, gameName, new ChessGame(), false);
+        GameData newGame = new GameData(gameIDCounter, null, null, gameName, new ChessGame());
         gameIDCounter++;
         GAMES.add(newGame);
         return newGame;
@@ -55,7 +55,7 @@ public class MemoryGameDAO implements GameDAO
                 {
                     throw new AlreadyTakenException("Error: White Player already taken");
                 }
-                GameData newGame = new GameData(gameID, username, game.blackUsername(), game.gameName(), game.game(), false);
+                GameData newGame = new GameData(gameID, username, game.blackUsername(), game.gameName(), game.game());
                 GAMES.remove(game);
                 GAMES.add(newGame);
                 return;
@@ -66,7 +66,7 @@ public class MemoryGameDAO implements GameDAO
                 {
                     throw new AlreadyTakenException("Error: Black Player already taken");
                 }
-                GameData newGame = new GameData(gameID, game.whiteUsername(), username, game.gameName(), game.game(), false);
+                GameData newGame = new GameData(gameID, game.whiteUsername(), username, game.gameName(), game.game());
                 GAMES.remove(game);
                 GAMES.add(newGame);
                 return;

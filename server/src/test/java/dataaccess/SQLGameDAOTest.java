@@ -21,7 +21,7 @@ class SQLGameDAOTest {
     {
         mGameDataAccess = new SQLGameDAO();
         DatabaseManager.createDatabase();
-        mGameData = new GameData(1, null, null, "OG Game", new ChessGame(), false);
+        mGameData = new GameData(1, null, null, "OG Game", new ChessGame());
         mGameDataAccess.clearGames();
     }
 

@@ -35,9 +35,9 @@ public class SQLGameDAO implements GameDAO
                     {
                         throw new AlreadyTakenException("Error: Game name already taken");
                     }
-                    sql = "INSERT INTO GameData (whiteUsername, blackUsername, gameName, game, gameOver) Values (?, ?, ?, ?, ?)";
-                    int id = DatabaseManager.executeUpdate(sql, null, null, gameName, new Gson().toJson(new ChessGame()), 0);
-                    return new GameData(id, null, null, gameName, new ChessGame(), false);
+                    sql = "INSERT INTO GameData (whiteUsername, blackUsername, gameName, game) Values (?, ?, ?, ?)";
+                    int id = DatabaseManager.executeUpdate(sql, null, null, gameName, new Gson().toJson(new ChessGame()));
+                    return new GameData(id, null, null, gameName, new ChessGame());
                 }
 
             }
@@ -66,8 +66,7 @@ public class SQLGameDAO implements GameDAO
                                 rs.getString("whiteUsername"),
                                 rs.getString("blackUsername"),
                                 rs.getString("gameName"),
-                                game,
-                                rs.getBoolean("gameOver"));
+                                game);
                     }
                     else
                     {
@@ -166,8 +165,10 @@ public class SQLGameDAO implements GameDAO
 
     public void gameOver(int gameID) throws DataAccessException
     {
-        String sql = "UPDATE GameData SET gameOver = ? WHERE gameID = ?";
-        DatabaseManager.executeUpdate(sql, 1, gameID);
+        GameData game = getGame(gameID);
+        game.game().gameOver();
+        String sql = "UPDATE GameData SET game = ? WHERE gameID = ?";
+        DatabaseManager.executeUpdate(sql, new Gson().toJson(game.game()), gameID);
     }
 
     @Override

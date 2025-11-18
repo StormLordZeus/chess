@@ -18,6 +18,7 @@ public class ChessGame {
     private boolean mWhiteCastleLeft;
     private boolean mWhiteCastleRight;
     private ChessPosition mEnPassantPos;
+    private boolean mGameOver;
 
     public ChessGame() {
         mTeamTurn = TeamColor.WHITE;
@@ -28,6 +29,7 @@ public class ChessGame {
         mWhiteCastleLeft = true;
         mWhiteCastleRight = true;
         mEnPassantPos = null;
+        mGameOver = false;
     }
 
     /**
@@ -403,6 +405,16 @@ public class ChessGame {
     public ChessBoard getBoard()
     {
         return mBoard;
+    }
+
+    public boolean getGameOver()
+    {
+        return mGameOver;
+    }
+
+    public void gameOver()
+    {
+        mGameOver = true;
     }
 
     @Override

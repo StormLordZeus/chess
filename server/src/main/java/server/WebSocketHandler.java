@@ -109,7 +109,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         MakeMoveCommand moveAction = new Gson().fromJson(aJson, MakeMoveCommand.class);
         try {
             GameData preGame = mGameData.getGame(moveAction.getGameID());
-            if (preGame.gameOver()) {
+            if (preGame.game().getGameOver()) {
                 sendError(aCtx, "Error: Game is over. No moves can be made");
                 return;
             }
@@ -239,7 +239,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 sendError(aCtx, "Error: Observers cannot resign");
                 return;
             }
-            if (preGame.gameOver()) {
+            if (preGame.game().getGameOver()) {
                 sendError(aCtx, "Error: Game is already over. Game cannot be resigned");
                 return;
             }
