@@ -271,7 +271,6 @@ public class ChessGame {
 
         if (mTeamTurn == TeamColor.WHITE) { mTeamTurn = TeamColor.BLACK; }
         else { mTeamTurn = TeamColor.WHITE; }
-        System.out.println("The final board is: \n" + mBoard);
     }
 
     /**

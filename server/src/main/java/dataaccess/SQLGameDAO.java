@@ -167,7 +167,6 @@ public class SQLGameDAO implements GameDAO
     public void gameOver(int gameID) throws DataAccessException
     {
         String sql = "UPDATE GameData SET gameOver = ? WHERE gameID = ?";
-        System.out.println("Ending game with ID " + gameID);
         DatabaseManager.executeUpdate(sql, 1, gameID);
     }
 

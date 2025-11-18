@@ -68,6 +68,12 @@ public class DrawBoard
     public static void highlightSquares(ChessGame aGame, ChessPosition pieceLocation)
     {
         mPieceHighlight = pieceLocation;
+        if (aGame.getBoard().getPiece(pieceLocation) == null)
+        {
+            System.out.println("Error: Empty square selected. Please highlight a piece's location");
+            mPieceHighlight = null;
+            return;
+        }
         Collection<ChessMove> moves = aGame.validMoves(pieceLocation);
         for (ChessMove move : moves)
         {

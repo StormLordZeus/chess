@@ -51,6 +51,5 @@ public class WebSocketSessions
             }
         }
 
-        System.out.println("Broadcast to game " + gameID + " complete.");
     }
 }

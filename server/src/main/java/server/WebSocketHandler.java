@@ -107,7 +107,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         }
 
         MakeMoveCommand moveAction = new Gson().fromJson(aJson, MakeMoveCommand.class);
-        System.out.println("The Move action is " + moveAction);
         try {
             GameData preGame = mGameData.getGame(moveAction.getGameID());
             if (preGame.gameOver()) {
