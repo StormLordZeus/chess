@@ -138,8 +138,7 @@ public class SQLGameDAO implements GameDAO
                 return;
             }
         }
-        else if (move != null)
-        {
+        else if (move != null) {
             game.game().makeMove(move);
             String sql = "UPDATE GameData SET game = ? WHERE gameID = ?";
             DatabaseManager.executeUpdate(sql, new Gson().toJson(game.game()) ,gameID);
