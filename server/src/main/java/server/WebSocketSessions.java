@@ -13,7 +13,7 @@ public class WebSocketSessions
 
     public void addSessionToGame(int gameID, String username, Session session) {
         connections
-                .computeIfAbsent(gameID, g -> new HashMap<>())
+                .computeIfAbsent(gameID, myHash -> new HashMap<>())
                 .put(username, session);
     }
 

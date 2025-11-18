@@ -225,7 +225,7 @@ public class ReplLoop implements GameHandler {
 
 
     private ChessPiece.PieceType getPromotionType(ChessPosition aStart, ChessPosition aEnd) {
-        String line = "";
+        String line;
         if (mGame.getBoard().getPiece(aStart).getPieceType() == PAWN)
         {
             if ((mColor.equals("BLACK") && aEnd.getRow() == 1) ||(mColor.equals("WHITE") && aEnd.getRow() == 8))

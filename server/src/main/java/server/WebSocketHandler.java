@@ -49,7 +49,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         {
             case CONNECT -> connect(action, json, aCtx);
             case MAKE_MOVE -> makeMove(action, json, aCtx);
-            case LEAVE -> leaveGame(action, json, aCtx);
+            case LEAVE -> leaveGame(action, aCtx);
             case RESIGN -> resign(action, aCtx);
         }
     }
@@ -210,7 +210,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         }
     }
 
-    public void leaveGame(UserGameCommand aAction, String aJson, WsMessageContext aCtx) throws IOException
+    public void leaveGame(UserGameCommand aAction, WsMessageContext aCtx) throws IOException
     {
         AuthData auth = authenticate(aAction.getAuthToken());
         if (auth == null)
@@ -219,9 +219,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             return;
         }
 
-
-
-        UserJoinCommand leaveAction = new Gson().fromJson(aJson, UserJoinCommand.class);
         try
         {
             GameData game = mGameData.getGame(aAction.getGameID());

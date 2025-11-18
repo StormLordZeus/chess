@@ -150,7 +150,6 @@ public class SQLGameDAO implements GameDAO
 
     public void leaveGame(int gameID, String color) throws DataAccessException
     {
-        GameData game = getGame(gameID);
         if (color != null)
         {
             if (color.equals("BLACK"))

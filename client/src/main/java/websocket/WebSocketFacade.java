@@ -1,6 +1,5 @@
 package websocket;
 
-import chess.ChessGame;
 import chess.ChessMove;
 import com.google.gson.Gson;
 import exception.ResponseException;
@@ -11,7 +10,6 @@ import websocket.commands.UserJoinCommand;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.Objects;
 
 public class WebSocketFacade extends Endpoint {
     private Session mSession;
