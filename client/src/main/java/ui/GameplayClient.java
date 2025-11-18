@@ -51,7 +51,16 @@ public class GameplayClient
                         return new ArrayList<>(List.of("help", "Error: Move had too many or too few characters." +
                                 " Valid moves have 4 characters"));
                     }
+                    if (!params[0].matches("^[a-h][1-8][a-h][1-8]$"))
+                    {
+                        return new ArrayList<>(List.of(
+                                "help",
+                                "Error: Invalid move format. Example of valid moves: a2a4, h7h8, b1c3"
+                        ));
+                    }
+
                     return new ArrayList<>(List.of("move", "Attempting to make a move", params[0]));
+
                 }
             }
             case "4", "resign" ->
